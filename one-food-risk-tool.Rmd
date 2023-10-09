@@ -1,0 +1,100 @@
+---
+title: "One Food risk tool"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    theme:
+      bg: "#ffffff"
+      fg: "#0c2357" 
+      primary: "#006e8c"
+      base_font:
+        google: Prompt
+      code_font:
+        google: JetBrains Mono
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(readxl)
+library(here)
+library(data.table)
+library(DT)
+# Install thematic and un-comment for themed static plots (i.e., ggplot2)
+# thematic::thematic_rmd()
+```
+
+Column {data-width=350 .sidebar}
+-----------------------------------------------------------------------
+
+
+```{r}
+
+selectInput(inputId = "type",
+            label = "Type",
+            choices = c("Sector",
+                        "Hazard"))
+
+output$sector <- renderUI({
+  if(input$type == "Sector")
+    selectInput(inputId = "sector",
+                label = "Sector",
+                choices = c("Aquaculture",
+                            "Fisheries"))
+})
+
+output$hazard <- renderUI({
+  if(input$type == "Hazard")
+    selectInput(inputId = "hazard",
+                label = "Hazard",
+                choices = c("Biological",
+                            "Chemical"))
+})
+
+
+uiOutput("sector")
+uiOutput("hazard")
+```
+
+Column {data-width=650 .tabset}
+-----------------------------------------------------------------------
+
+### Plot
+
+```{r}
+# Import synthetic data
+  hazard_scores <- read_xlsx(here::here("data",
+                                        "data_structure.xlsx")) %>% data.table()
+  updated_data <- reactive({hazard_scores[Sector %in% input$sector]})
+  # Get colour palette
+  sector_cols <- c("#56B4E9",
+                            "#009E73",
+                            "#0072B2",
+                            "#F0E442")
+                            
+  names(sector_cols) <- c("Aquaculture",
+                          "Crops",
+                          "Fisheries",
+                          "Livestock")
+# Plot
+renderPlot({
+    ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Sector)) +
+      geom_col() +
+      scale_fill_manual(values = sector_cols) +
+      theme_light() +
+      theme(text = element_text(size = 20),
+            legend.position = "none")
+})
+```
+
+### Data
+
+```{r}
+renderDataTable({
+  updated_data()
+})
+```
+
