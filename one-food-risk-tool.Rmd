@@ -36,8 +36,9 @@ Column {data-width=350 .sidebar}
   # View by sector or by hazard category
 selectInput(inputId = "type",
             label = "Type",
-            choices = c("Sector",
-                        "Category"))
+            choices = c("Hazard overview",
+                        "Hazard category",
+                        "Sector"))
 
 # Second input selectors -------------------------------------------------------
 
@@ -52,20 +53,31 @@ output$sector <- renderUI({
                             "Crops"))
 })
 
-# Options for hazards
+# Options for hazard category
 output$category <- renderUI({
-  if(input$type == "Category")
+  if(input$type == "Hazard category")
     selectInput(inputId = "category",
-                label = "Catagory",
+                label = "Hazard category",
                 choices = c("Biological",
                             "Chemical",
                             "Physical",
                             "Socio-economic"))
 })
 
+# Display by sector or impact
+output$fill <- renderUI({
+  if(input$type %in% c("Hazard overview", "Hazard category")){
+    selectInput(inputId = "fill",
+                label = "Fill by sector or impact",
+                choices = c("Sector",
+                            "Impact"))
+  }
+})
+
 # Render UIs
-uiOutput("sector")
 uiOutput("category")
+uiOutput("fill")
+uiOutput("sector")
 ```
 
 Column {data-width=650 .tabset}
@@ -83,9 +95,10 @@ hazard_scores <- read_xlsx(here::here("data",
 updated_data <- reactive({
   if(input$type  == "Sector"){
     hazard_scores[Sector %in% input$sector]
-  } else if(input$type == "Category"){
+  } else if(input$type == "Hazard category"){
     hazard_scores[Category %in% input$category]
-  }
+  } else if(input$type == "Hazard overview")
+    hazard_scores
 })
 
 
@@ -115,26 +128,19 @@ names(category_cols) <- c("Biological",
                             "Physical",
                             "Socio-economic")
 
+## Impact ====
+
+impact_cols <- c("#DDCC77",
+                          "#882255",
+                          "#117733",
+                          "#88CCEE")
+                          
+names(impact_cols) <- c("Food production",
+                        "Human health",
+                        "Natural environment",
+                        "Climate change")
+
 # Plots
-
-# of_plot <- reactive({
-#   if(input$type == "Sector"){
-#     ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Category)) +
-#       geom_col() +
-#       scale_fill_manual(values = category_cols) +
-#       theme_light() +
-#       theme(text = element_text(size = 20),
-#             legend.position = "none")
-#   } else if(input$type == "Category"){
-#     ggplot(data = updated_data(), aes(x = Sector, y = Score, fill = Sector)) +
-#       geom_col() +
-#       scale_fill_manual(values = sector_cols) +
-#       theme_light() +
-#       theme(text = element_text(size = 20),
-#             legend.position = "none")
-#   }
-# })
-
 of_plot <- reactive({
   if(input$type == "Sector"){
     ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Category)) +
@@ -143,13 +149,72 @@ of_plot <- reactive({
       theme_light() +
       theme(text = element_text(size = 20),
             legend.position = "none")
-  } else if(input$type == "Category"){
-    ggplot(data = updated_data(), aes(x = Sector, y = Score, fill = Sector)) +
-      geom_col() +
+  } else if(input$type == "Hazard category" &&
+            input$fill == "Sector"){
+    ggplot(data = updated_data()) +
+      geom_hline(yintercept = seq(0, 90, 10), colour = "darkgrey") +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector), stat = "identity", alpha = 0.8) +
+      coord_polar() +
       scale_fill_manual(values = sector_cols) +
+      scale_y_continuous(limits = c(0, 100), expand = c(0, 10)) +
+      coord_polar() +
       theme_light() +
-      theme(text = element_text(size = 20),
-            legend.position = "none")
+      theme(axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            panel.grid = element_blank(),
+            legend.position = "bottom",
+            text = element_text(size = 20))
+  } else if(input$type == "Hazard category" &&
+            input$fill == "Impact"){
+     ggplot(data = updated_data()) +
+      geom_hline(yintercept = seq(0, 90, 10), colour = "darkgrey") +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact), stat = "identity", alpha = 0.8) +
+      coord_polar() +
+      scale_fill_manual(values = impact_cols) +
+      scale_y_continuous(limits = c(0, 100), expand = c(0, 10)) +
+      coord_polar() +
+      theme_light() +
+      theme(axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            panel.grid = element_blank(),
+            legend.position = "bottom",
+            text = element_text(size = 20))
+  } else if(input$type == "Hazard overview" &&
+            input$fill == "Sector"){
+    ggplot(data = updated_data()) +
+      geom_hline(yintercept = seq(0, 400, 100), colour = "darkgrey") +
+      geom_bar(aes(x = Category, y = Score, fill = Sector), stat = "identity", alpha = 0.8) +
+      coord_polar() +
+      scale_fill_manual(values = sector_cols) +
+      scale_y_continuous(limits = c(-10, 500), expand = c(0, 50)) +
+      coord_polar() +
+      theme_light() +
+      ggtitle("Hazard categories by sector") +
+      theme(axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            panel.grid = element_blank(),
+            legend.position = "bottom",
+            text = element_text(size = 20))
+  } else if(input$type == "Hazard overview" &&
+            input$fill == "Impact"){
+    ggplot(data = updated_data()) +
+      geom_hline(yintercept = seq(0, 400, 100), colour = "darkgrey") +
+      geom_bar(aes(x = Category, y = Score, fill = Impact), stat = "identity", alpha = 0.8) +
+      coord_polar() +
+      scale_fill_manual(values = impact_cols) +
+      scale_y_continuous(limits = c(-10, 500), expand = c(0, 50)) +
+      coord_polar() +
+      theme_light() +
+      ggtitle("Hazard categories by sector") +
+      theme(axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title = element_blank(),
+            panel.grid = element_blank(),
+            legend.position = "bottom",
+            text = element_text(size = 20))
   }
 })
 
