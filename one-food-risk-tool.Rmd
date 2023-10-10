@@ -32,31 +32,40 @@ Column {data-width=350 .sidebar}
 
 
 ```{r}
-
+# First input selector
+  # View by sector or by hazard category
 selectInput(inputId = "type",
             label = "Type",
             choices = c("Sector",
-                        "Hazard"))
+                        "Category"))
 
+# Second input selectors -------------------------------------------------------
+
+# Options for sector
 output$sector <- renderUI({
   if(input$type == "Sector")
     selectInput(inputId = "sector",
                 label = "Sector",
                 choices = c("Aquaculture",
-                            "Fisheries"))
+                            "Fisheries",
+                            "Livestock",
+                            "Crops"))
 })
 
-output$hazard <- renderUI({
-  if(input$type == "Hazard")
-    selectInput(inputId = "hazard",
-                label = "Hazard",
+# Options for hazards
+output$category <- renderUI({
+  if(input$type == "Category")
+    selectInput(inputId = "category",
+                label = "Catagory",
                 choices = c("Biological",
-                            "Chemical"))
+                            "Chemical",
+                            "Physical",
+                            "Socio-economic"))
 })
 
-
+# Render UIs
 uiOutput("sector")
-uiOutput("hazard")
+uiOutput("category")
 ```
 
 Column {data-width=650 .tabset}
@@ -65,28 +74,88 @@ Column {data-width=650 .tabset}
 ### Plot
 
 ```{r}
-# Import synthetic data
-  hazard_scores <- read_xlsx(here::here("data",
-                                        "data_structure.xlsx")) %>% data.table()
-  updated_data <- reactive({hazard_scores[Sector %in% input$sector]})
-  # Get colour palette
-  sector_cols <- c("#56B4E9",
-                            "#009E73",
-                            "#0072B2",
-                            "#F0E442")
-                            
-  names(sector_cols) <- c("Aquaculture",
-                          "Crops",
-                          "Fisheries",
-                          "Livestock")
-# Plot
-renderPlot({
-    ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Sector)) +
+# Import synthetic data --------------------------------------------------------
+
+# Import
+hazard_scores <- read_xlsx(here::here("data",
+                                      "data_structure.xlsx")) %>% data.table()
+
+updated_data <- reactive({
+  if(input$type  == "Sector"){
+    hazard_scores[Sector %in% input$sector]
+  } else if(input$type == "Category"){
+    hazard_scores[Category %in% input$category]
+  }
+})
+
+
+# Colour palettes --------------------------------------------------------------
+
+## Sector =====
+
+sector_cols <- c("#56B4E9",
+                          "#009E73",
+                          "#0072B2",
+                          "#F0E442")
+                          
+names(sector_cols) <- c("Aquaculture",
+                        "Crops",
+                        "Fisheries",
+                        "Livestock")
+
+## Hazard category =====
+
+category_cols <- c("#CC6677",
+                            "#44AA99",
+                            "#6699CC",
+                            "#AA4499")
+
+names(category_cols) <- c("Biological",
+                            "Chemical",
+                            "Physical",
+                            "Socio-economic")
+
+# Plots
+
+# of_plot <- reactive({
+#   if(input$type == "Sector"){
+#     ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Category)) +
+#       geom_col() +
+#       scale_fill_manual(values = category_cols) +
+#       theme_light() +
+#       theme(text = element_text(size = 20),
+#             legend.position = "none")
+#   } else if(input$type == "Category"){
+#     ggplot(data = updated_data(), aes(x = Sector, y = Score, fill = Sector)) +
+#       geom_col() +
+#       scale_fill_manual(values = sector_cols) +
+#       theme_light() +
+#       theme(text = element_text(size = 20),
+#             legend.position = "none")
+#   }
+# })
+
+of_plot <- reactive({
+  if(input$type == "Sector"){
+    ggplot(data = updated_data(), aes(x = Category, y = Score, fill = Category)) +
+      geom_col() +
+      scale_fill_manual(values = category_cols) +
+      theme_light() +
+      theme(text = element_text(size = 20),
+            legend.position = "none")
+  } else if(input$type == "Category"){
+    ggplot(data = updated_data(), aes(x = Sector, y = Score, fill = Sector)) +
       geom_col() +
       scale_fill_manual(values = sector_cols) +
       theme_light() +
       theme(text = element_text(size = 20),
             legend.position = "none")
+  }
+})
+
+# Plot
+renderPlot({
+    of_plot()
 })
 ```
 
