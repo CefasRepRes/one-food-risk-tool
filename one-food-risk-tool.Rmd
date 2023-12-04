@@ -42,6 +42,35 @@ Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
 Data upload {data-navmenu="Risk tool" data-icon="fa-upload"}
 ================================================================================
 
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+```{r}
+# Upload button
+fileInput(inputId = "upload",
+          label = "Upload hazard scores:",
+          accept = ".xlsx")
+
+# Store upload in reactive value
+hazard_scores <- reactiveValues(scores = NULL)
+
+# Load data
+observe({
+  # Ensure upload has been set
+  req(input$upload)
+  
+  # Read file
+  file <- readxl::read_xlsx(path = input$upload$datapath)
+  
+  # Convert to data table
+  file <- data.table(file)
+  
+  # Assign to reactive value
+  hazard_scores$scores <- file
+})
+
+```
+
 Risk visualiser {data-navmenu="Risk tool" data-icon="fa-chart-pie"}
 ================================================================================
 
@@ -90,24 +119,20 @@ Column {data-width=650 .tabset}
 ### Plot
 
 ```{r}
-# Import synthetic data --------------------------------------------------------
-
-# Import
-hazard_scores <- read_xlsx(here::here("data",
-                                      "data_structure.xlsx")) %>% data.table()
+# Edit synthetic data
 
 updated_data <- reactive({
   if(input$type == "Hazard category"){
     if(input$fill == "Sector"){
-      hazard_scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Sector", "Hazard")]
+      hazard_scores$scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Sector", "Hazard")]
     } else if(input$fill == "Impact"){
-      hazard_scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
+      hazard_scores$scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
     }
   } else if(input$type == "Hazard overview"){
     if(input$fill == "Sector"){
-      hazard_scores[, .(Score = sum(Score)), by = c("Category", "Sector")]
+      hazard_scores$scores[, .(Score = sum(Score)), by = c("Category", "Sector")]
     } else if(input$fill == "Impact"){
-      hazard_scores[, .(Score = sum(Score)), by = c("Category", "Impact")]
+      hazard_scores$scores[, .(Score = sum(Score)), by = c("Category", "Impact")]
     }
   }
 })
