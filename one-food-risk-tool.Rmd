@@ -34,8 +34,6 @@ Column
 --------------------------------------------------------------------------------
 #### One Food project
 
-Insert some flavour text about One Food.
-
 #### One Food risk tool
 
 The One Food risk tool maintainer is Sarah Alewijnse (Cefas).
@@ -49,7 +47,6 @@ Risk visualiser {data-navmenu="Risk tool" data-icon="fa-chart-pie"}
 
 Column {data-width=350 .sidebar}
 -----------------------------------------------------------------------
-
 
 ```{r}
 # First input selector
