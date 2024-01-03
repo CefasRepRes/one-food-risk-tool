@@ -12,7 +12,7 @@ output:
       code_font:
         google: JetBrains Mono
     orientation: columns
-    vertical_layout: fill
+    vertical_layout: scroll
 ---
 
 ```{r setup, include=FALSE}
@@ -38,6 +38,115 @@ Column
 
 The One Food risk tool maintainer is Sarah Alewijnse (Cefas).
 Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
+
+Data template download {data-navmenu="Risk tool" data-icon="fa-file-excel"}
+================================================================================
+
+Column {data-width=650 .tabset}
+--------------------------------------------------------------------------------
+
+### Category
+
+```{r}
+# Base template ----------------------------------------------------------------
+template_data <- data.frame(Category = NA,
+                            Hazard = NA,
+                            Impact = NA,
+                            Sector = NA,
+                            Score = NA)
+output$template <- downloadHandler(filename = function(){
+  paste0(Sys.Date(), "_template.csv")
+}, 
+content = function(file){
+  write.csv(template_data, file, row.names = F)
+})
+
+# Checkbox input ---------------------------------------------------------------
+
+# Input 1 - Category
+checkboxGroupInput(inputId = "template_cat",
+                   label = "Hazard category",
+                   choices = c("Biological" = "Biological",
+                               "Chemical" = "Chemical",
+                               "Physical" = "Physical",
+                               "Socio-economic" = "Socio-economic"))
+```
+
+### Hazards
+
+```{r}
+# Input 2 - Hazard
+
+checkboxGroupInput(inputId = "template_haz",
+                   label = "Hazards",
+                   choices = "")
+choices <- NULL
+label <- NULL
+
+# Set hazard lists THEN use if-else
+hazard_bio <- c("Patogens - Fungal",
+                 "Pathogens - Bacterial",
+                 "Pathogens - Viral",
+                 "Pathogens - Protistan",
+                 "Weeds",
+                 "Pests - Arthropods",
+                 "Pests - Helminths",
+                 "Pests - Molluscs",
+                 "Human-wildlife conflict",
+                 "Harmful algal blooms",
+                 "Extraction of wild organisms",
+                 "Biodiversity loss",
+                 "Range shifts",
+                 "Invasive non-native species",
+                 "Genetically modified organisms")
+hazard_chem <- c("Pesticides",
+                 "Herbicides",
+                 "Antimicrobials",
+                 "Antihelminthics",
+                 "NPKS fertlisers",
+                 "Poor soil chemistry",
+                 "Methanogenesis",
+                 "Heavy metals",
+                 "Salinity incursions",
+                 "Disinfectants",
+                 "Plastics - Food production",
+                 "Air pollution",
+                 "Radiological contamination",
+                 "Chemical spillages",
+                 "Ocean acidification",
+                 "Hypoxia",
+                 "Refrigeration",
+                 "Carbon dioxide emissions",
+                 "E-waste")
+
+reactive({
+  if("Biological" %in% input$template_cat &
+          "Chemical" %in% input$template_cat){
+    choices <- c(hazard_bio, hazard_chem)
+    label <- "Biological & Chemical"
+  }
+  else if("Biological" %in% input$template_cat){
+    choices <- hazard_bio
+  label <- "Biological"
+  }
+  else if("Chemical" %in% input$template_cat){
+    choices <- hazard_chem
+    label <- "Chemical"
+  }
+  updateCheckboxGroupInput(inputId = "template_haz",
+                             label = label,
+                             choices = choices)
+})
+```
+
+### Download template
+
+```{r}
+# Download button --------------------------------------------------------------
+output$download_button <- renderUI({downloadButton(outputId = "template",
+                                                    label = "Download .csv")})
+uiOutput("download_button")
+```
 
 Data upload {data-navmenu="Risk tool" data-icon="fa-upload"}
 ================================================================================
@@ -70,26 +179,6 @@ observe({
   hazard_scores$scores <- file
 })
 
-```
-
-#### Data template download
-
-```{r}
-template_data <- data.frame(Category = NA,
-                            Hazard = NA,
-                            Impact = NA,
-                            Sector = NA,
-                            Score = NA)
-output$template <- downloadHandler(filename = function(){
-  paste0(Sys.Date(), "_template.csv")
-}, 
-content = function(file){
-  write.csv(template_data, file, row.names = F)
-})
-
-output$download_button <- renderUI({downloadButton(outputId = "template",
-                                                    label = "Download .csv")})
-uiOutput("download_button")
 ```
 
 Risk visualiser {data-navmenu="Risk tool" data-icon="fa-chart-pie"}
