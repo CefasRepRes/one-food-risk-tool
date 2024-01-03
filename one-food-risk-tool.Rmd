@@ -110,6 +110,46 @@ checkboxGroupInput(inputId = "template_haz_chem",
                                "E-waste"))
 ```
 
+### Physical
+
+```{r}
+checkboxGroupInput(inputId = "template_haz_phys",
+                   label = "Physical hazards",
+                   choices = c("Water scarcity",
+                               "Flooding",
+                               "Temperature",
+                               "Extreme temperatures",
+                               "Storms",
+                               "Wildfires",
+                               "Noise and light pollution",
+                               "Tillage",
+                               "Soil erosion and compaction",
+                               "Destructive fishing practices",
+                               "Food waste - Unavoidable",
+                               "Food packaging",
+                               "Mis-sold goods",
+                               "Land use change"))
+```
+
+### Socio-economic
+
+```{r}
+checkboxGroupInput(inputId = "template_haz_soc",
+                   label = "Socio-economic hazards",
+                   choices = c("Reduced labour force",
+                               "Food waste - Avoidable",
+                               "Population growth",
+                               "Food production costs",
+                               "Human disease",
+                               "Human conflict",
+                               "Lack of knowledge",
+                               "Access to veterinary services",
+                               "Dietary changes",
+                               "Land rights",
+                               "Energy policies",
+                               "Food subsidies"))
+```
+
 Data template download {data-navmenu="Risk score template" data-icon="fa-file-excel"}
 ================================================================================
 
@@ -128,36 +168,64 @@ template_data <- data.frame(Category = NA,
 
 # Create template from inputs
 template_data <- reactive({
+  # Biological
   ifelse(length(input$template_haz_bio) > 0,
          biological_template <- data.frame(Category = rep("Biological", 
                                                           length(input$template_haz_bio) * length(input$template_sector)),
-                                    Hazard = rep(input$template_haz_bio,
-                                                 length(input$template_sector)),
-                                    Sector = sort(rep(input$template_sector,
-                                                 length(input$template_haz_bio))),
-                                    Scores = NA),
+                                           Hazard = rep(input$template_haz_bio,
+                                                        length(input$template_sector)),
+                                           Sector = sort(rep(input$template_sector,
+                                                             length(input$template_haz_bio))),
+                                           Scores = NA),
          biological_template <- data.frame(Category = NULL,
-                                    Hazard = NULL,
-                                    Sector = NULL,
-                                    Scores = NULL))
+                                           Hazard = NULL,
+                                           Sector = NULL,
+                                           Scores = NULL))
   
+  # Chemical
   ifelse(length(input$template_haz_chem) > 0,
          chemical_template <- data.frame(Category = rep("Chemical", length(input$template_haz_chem)),
                                     Hazard = input$template_haz_chem,
-                                    Sector = NA,
+                                    Sector = sort(rep(input$template_sector,
+                                                 length(input$template_haz_chem))),
                                     Scores = NA),
          chemical_template <- data.frame(Category = NULL,
                                     Hazard = NULL,
                                     Sector = NULL,
                                     Scores = NULL))
   
+  # Physical
+  ifelse(length(input$template_haz_phys) > 0,
+         physical_template <- data.frame(Category = rep("Physical", length(input$template_haz_phys)),
+                                    Hazard = input$template_haz_phys,
+                                    Sector = sort(rep(input$template_sector,
+                                                 length(input$template_haz_phys))),
+                                    Scores = NA),
+         physical_template <- data.frame(Category = NULL,
+                                    Hazard = NULL,
+                                    Sector = NULL,
+                                    Scores = NULL))
+  
+  # Socio-economic
+  ifelse(length(input$template_haz_soc) > 0,
+         socio_economic_template <- data.frame(Category = rep("Socio-economic", length(input$template_haz_soc)),
+                                    Hazard = input$template_haz_soc,
+                                    Sector = sort(rep(input$template_sector,
+                                                 length(input$template_haz_soc))),
+                                    Scores = NA),
+         socio_economic_template <- data.frame(Category = NULL,
+                                    Hazard = NULL,
+                                    Sector = NULL,
+                                    Scores = NULL))
   rbind(biological_template,
-        chemical_template)
+        chemical_template,
+        physical_template,
+        socio_economic_template)
 })
 
 # Create download handler
 output$template <- downloadHandler(filename = function(){
-  paste0(Sys.Date(), "_template.csv")
+  paste0(Sys.Date(), "_risk_score_template.csv")
 }, 
 content = function(file){
   write.csv(template_data(), file, row.names = F)
@@ -182,7 +250,7 @@ output$download_button <- renderUI({downloadButton(outputId = "template",
 uiOutput("download_button")
 ```
 
-Data upload {data-navmenu="Risk tool" data-icon="fa-upload"}
+Data upload {data-navmenu="Risk tool visualiser" data-icon="fa-upload"}
 ================================================================================
 
 Column
@@ -215,7 +283,7 @@ observe({
 
 ```
 
-Risk visualiser {data-navmenu="Risk tool" data-icon="fa-chart-pie"}
+Risk visualiser {data-navmenu="Risk tool visualiser" data-icon="fa-chart-pie"}
 ================================================================================
 
 Column {data-width=350 .sidebar}
