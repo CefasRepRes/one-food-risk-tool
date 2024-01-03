@@ -8,7 +8,7 @@ output:
       fg: "#0c2357" 
       primary: "#006e8c"
       base_font:
-        google: Prompt
+        google: Open Sans
       code_font:
         google: JetBrains Mono
     orientation: columns
@@ -38,6 +38,43 @@ Column
 
 The One Food risk tool maintainer is Sarah Alewijnse (Cefas).
 Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
+
+How to
+================================================================================
+
+Column
+--------------------------------------------------------------------------------
+
+#### How to use the One Food risk tool
+
+The One Food risk tool has two key components. 
+First is the **Risk score template**, which allows users to create and download a custom
+template for risk scores, based on the sectors, hazards, and impacts of their choice.
+Second is the **Risk tool visualiser** which allows users to visualise those risk scores.
+
+##### 1. Download the risk score template
+
+Navigate to **Hazard and sector selection** under **Risk scores template**.
+Select your required sector(s) and hazard(s) from the tick boxes.
+Note that hazards are split into their categories: Biological, Chemical, Physical and Socio-Economic.
+You can select as many hazards and sectors as you require.
+
+Next, navigate to **Data template download** under **Risk scores template**. 
+Here you can view your data template and download it as a .csv file.
+
+##### 2. Fill in the risk scores
+
+Using your preferred spreadsheet editing software, enter the risk scores for each hazard and sector, using the template you created.
+
+##### 3. Upload the risk scores data
+
+Navigate to **Data upload** under **Risk tool visualiser**. 
+Upload the risk scores.
+
+##### 4. Visualise the risk scores
+
+Once you have uploaded the risk scores, you can visualise the results in **Risk visualiser** under **Risk tool visualiser**.
+You can also view the risk scores data in the data tab.
 
 Hazard and sector selection {data-navmenu="Risk score template" data-icon="fa-square-check"}
 ================================================================================
@@ -460,4 +497,3 @@ renderDataTable({
   updated_data()
 })
 ```
-
