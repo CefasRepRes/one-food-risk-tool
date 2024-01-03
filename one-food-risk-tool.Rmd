@@ -42,8 +42,9 @@ Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
 Data upload {data-navmenu="Risk tool" data-icon="fa-upload"}
 ================================================================================
 
-Column {data-width=650}
------------------------------------------------------------------------
+Column
+--------------------------------------------------------------------------------
+#### Data upload
 
 ```{r}
 # Upload button
@@ -71,6 +72,26 @@ observe({
 
 ```
 
+#### Data template download
+
+```{r}
+template_data <- data.frame(Category = NA,
+                            Hazard = NA,
+                            Impact = NA,
+                            Sector = NA,
+                            Score = NA)
+output$template <- downloadHandler(filename = function(){
+  paste0(Sys.Date(), "_template.csv")
+}, 
+content = function(file){
+  write.csv(template_data, file, row.names = F)
+})
+
+output$download_button <- renderUI({downloadButton(outputId = "template",
+                                                    label = "Download .csv")})
+uiOutput("download_button")
+```
+
 Risk visualiser {data-navmenu="Risk tool" data-icon="fa-chart-pie"}
 ================================================================================
 
@@ -79,7 +100,7 @@ Column {data-width=350 .sidebar}
 
 ```{r}
 # First input selector
-  # View by sector or by hazard category
+# View by sector or by hazard category
 selectInput(inputId = "type",
             label = "Type",
             choices = c("Hazard overview",
@@ -158,11 +179,11 @@ category_cols <- c("#CC6677",
                             "#44AA99",
                             "#6699CC",
                             "#AA4499")
-
+                            
 names(category_cols) <- c("Biological",
-                            "Chemical",
-                            "Physical",
-                            "Socio-economic")
+                          "Chemical",
+                          "Physical",
+                          "Socio-economic")
 
 ## Impact ====
 
@@ -179,77 +200,65 @@ names(impact_cols) <- c("Food production",
 # Plots
 of_plot <- reactive({
   if(input$type == "Hazard category" &&
-            input$fill == "Sector"){
+     input$fill == "Sector"){
     ggplot(data = updated_data()) +
-      geom_hline(yintercept = seq(0, 90, 10), colour = "lightgrey") +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector, col = Sector), stat = "identity", alpha = 0.7) +
-      coord_polar() +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector), 
+               col = "white",
+               stat = "identity") +
       scale_fill_manual(values = sector_cols) +
       scale_colour_manual(values = sector_cols) +
-      coord_polar() +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
       theme_light() +
-      theme(axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank(),
-            panel.grid = element_blank(),
-            legend.position = "bottom",
+      theme(legend.position = "bottom",
             text = element_text(size = 20))
   } else if(input$type == "Hazard category" &&
             input$fill == "Impact"){
-     ggplot(data = updated_data()) +
-      geom_hline(yintercept = seq(0, 90, 10), colour = "lightgrey") +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact, col = Impact), stat = "identity", alpha = 0.7) +
-      coord_polar() +
+    ggplot(data = updated_data()) +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact), 
+               col = "white",
+               stat = "identity") +
       scale_fill_manual(values = impact_cols) +
       scale_colour_manual(values = impact_cols) +
-      coord_polar() +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
       theme_light() +
-      theme(axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank(),
-            panel.grid = element_blank(),
-            legend.position = "bottom",
+      theme(legend.position = "bottom",
             text = element_text(size = 20))
   } else if(input$type == "Hazard overview" &&
             input$fill == "Sector"){
     ggplot(data = updated_data()) +
-      geom_hline(yintercept = seq(0, 400, 100), colour = "lightgrey") +
-      geom_bar(aes(x = Category, y = Score, fill = Sector, col = Sector), stat = "identity", alpha = 0.7) +
-      coord_polar() +
+      geom_bar(aes(x = Category, y = Score, fill = Sector), 
+               col = "white",
+               stat = "identity") +
       scale_fill_manual(values = sector_cols) +
       scale_colour_manual(values = sector_cols) +
-      coord_polar() +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
       theme_light() +
       ggtitle("Hazard categories by sector") +
-      theme(axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank(),
-            panel.grid = element_blank(),
-            legend.position = "bottom",
+      theme(legend.position = "bottom",
             text = element_text(size = 20))
   } else if(input$type == "Hazard overview" &&
             input$fill == "Impact"){
     ggplot(data = updated_data()) +
-      geom_hline(yintercept = seq(0, 400, 100), colour = "lightgrey") +
-      geom_bar(aes(x = Category, y = Score, fill = Impact, col = Impact), stat = "identity", alpha = 0.7) +
-      coord_polar() +
+      geom_bar(aes(x = Category, y = Score, fill = Impact), 
+               col = "white",
+               stat = "identity") +
       scale_fill_manual(values = impact_cols) +
       scale_colour_manual(values = impact_cols) +
-      coord_polar() +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
       theme_light() +
       ggtitle("Hazard categories by impact") +
-      theme(axis.text.y = element_blank(),
-            axis.ticks = element_blank(),
-            axis.title = element_blank(),
-            panel.grid = element_blank(),
-            legend.position = "bottom",
+      theme(legend.position = "bottom",
             text = element_text(size = 20))
   }
 })
 
 # Plot
 renderPlot({
-    of_plot()
+  of_plot()
 })
 ```
 
