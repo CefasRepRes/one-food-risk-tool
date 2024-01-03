@@ -1,12 +1,13 @@
 ---
-title: "One Food risk tool"
+title: "Risk Tool"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
+    logo: images/one-food-logo.png
     theme:
       bg: "#ffffff"
-      fg: "#0c2357" 
-      primary: "#006e8c"
+      fg: "#2a398e" 
+      primary: "#69c8f0"
       base_font:
         google: Open Sans
       code_font:
