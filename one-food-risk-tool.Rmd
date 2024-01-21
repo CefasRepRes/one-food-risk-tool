@@ -202,7 +202,9 @@ template_data <- data.frame(Category = NA,
                             Hazard = NA,
                             Impact = NA,
                             Sector = NA,
-                            Score = NA)
+                            Severity = NA,
+                            Probability = NA,
+                            Longevity = NA)
 
 # Create template from inputs
 template_data <- reactive({
@@ -214,47 +216,63 @@ template_data <- reactive({
                                                         length(input$template_sector)),
                                            Sector = sort(rep(input$template_sector,
                                                              length(input$template_haz_bio))),
-                                           Scores = NA),
+                                           Severity = NA,
+                                           Probability = NA,
+                                           Longevity = NA),
          biological_template <- data.frame(Category = NULL,
                                            Hazard = NULL,
                                            Sector = NULL,
-                                           Scores = NULL))
+                                           Severity = NULL,
+                                           Probability = NULL,
+                                           Longevity = NULL))
   
   # Chemical
   ifelse(length(input$template_haz_chem) > 0,
          chemical_template <- data.frame(Category = rep("Chemical", length(input$template_haz_chem)),
-                                    Hazard = input$template_haz_chem,
-                                    Sector = sort(rep(input$template_sector,
-                                                 length(input$template_haz_chem))),
-                                    Scores = NA),
+                                         Hazard = input$template_haz_chem,
+                                         Sector = sort(rep(input$template_sector,
+                                                           length(input$template_haz_chem))),
+                                         Severity = NA,
+                                         Probability = NA,
+                                         Longevity = NA),
          chemical_template <- data.frame(Category = NULL,
-                                    Hazard = NULL,
-                                    Sector = NULL,
-                                    Scores = NULL))
+                                         Hazard = NULL,
+                                         Sector = NULL,
+                                         Severity = NULL,
+                                         Probability = NULL,
+                                         Longevity = NULL))
   
   # Physical
   ifelse(length(input$template_haz_phys) > 0,
          physical_template <- data.frame(Category = rep("Physical", length(input$template_haz_phys)),
-                                    Hazard = input$template_haz_phys,
-                                    Sector = sort(rep(input$template_sector,
-                                                 length(input$template_haz_phys))),
-                                    Scores = NA),
+                                         Hazard = input$template_haz_phys,
+                                         Sector = sort(rep(input$template_sector,
+                                                           length(input$template_haz_phys))),
+                                         Severity = NA,
+                                         Probability = NA,
+                                         Longevity = NA),
          physical_template <- data.frame(Category = NULL,
-                                    Hazard = NULL,
-                                    Sector = NULL,
-                                    Scores = NULL))
+                                         Hazard = NULL,
+                                         Sector = NULL,
+                                         Severity = NULL,
+                                         Probability = NULL,
+                                         Longevity = NULL))
   
   # Socio-economic
   ifelse(length(input$template_haz_soc) > 0,
          socio_economic_template <- data.frame(Category = rep("Socio-economic", length(input$template_haz_soc)),
-                                    Hazard = input$template_haz_soc,
-                                    Sector = sort(rep(input$template_sector,
-                                                 length(input$template_haz_soc))),
-                                    Scores = NA),
+                                               Hazard = input$template_haz_soc,
+                                               Sector = sort(rep(input$template_sector,
+                                                                 length(input$template_haz_soc))),
+                                               Severity = NA,
+                                               Probability = NA,
+                                               Longevity = NA),
          socio_economic_template <- data.frame(Category = NULL,
-                                    Hazard = NULL,
-                                    Sector = NULL,
-                                    Scores = NULL))
+                                               Hazard = NULL,
+                                               Sector = NULL,
+                                               Severity = NULL,
+                                               Probability = NULL,
+                                               Longevity = NULL))
   rbind(biological_template,
         chemical_template,
         physical_template,
@@ -284,7 +302,7 @@ Column {data-width=200}
 ```{r}
 # Download button --------------------------------------------------------------
 output$download_button <- renderUI({downloadButton(outputId = "template",
-                                                    label = "Download .csv")})
+                                                   label = "Download .csv")})
 uiOutput("download_button")
 ```
 
@@ -302,7 +320,7 @@ fileInput(inputId = "upload",
           accept = ".xlsx")
 
 # Store upload in reactive value
-hazard_scores <- reactiveValues(scores = NULL)
+hazard_scores <- reactiveValues(user = NULL)
 
 # Load data
 observe({
@@ -316,9 +334,21 @@ observe({
   file <- data.table(file)
   
   # Assign to reactive value
-  hazard_scores$scores <- file
+  hazard_scores$user <- file
 })
 
+```
+
+#### Score generation
+
+Choose whether the final hazard score will be generatived by additive or multiplicative methods.
+
+```{r}
+# Additive or multiplicative score generation
+selectInput(inputId = "method",
+            label = "Score generation method:",
+            choices = c("Additive",
+                        "Multiplicative"))
 ```
 
 Risk visualiser {data-navmenu="Risk tool visualiser" data-icon="fa-chart-pie"}
@@ -370,19 +400,24 @@ Column {data-width=650 .tabset}
 
 ```{r}
 # Edit synthetic data
-
 updated_data <- reactive({
+  if(input$method == "Additive"){
+    hazard_scores$user$Score <- hazard_scores$user$Severity + hazard_scores$user$Probability + hazard_scores$user$Longevity
+  }
+  if(input$method == "Multiplicative"){
+    hazard_scores$user$Score <- hazard_scores$user$Severity * hazard_scores$user$Probability * hazard_scores$user$Longevity
+  }
   if(input$type == "Hazard category"){
     if(input$fill == "Sector"){
-      hazard_scores$scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Sector", "Hazard")]
+      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Sector", "Hazard")]
     } else if(input$fill == "Impact"){
-      hazard_scores$scores[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
+      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
     }
   } else if(input$type == "Hazard overview"){
     if(input$fill == "Sector"){
-      hazard_scores$scores[, .(Score = sum(Score)), by = c("Category", "Sector")]
+      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Sector")]
     } else if(input$fill == "Impact"){
-      hazard_scores$scores[, .(Score = sum(Score)), by = c("Category", "Impact")]
+      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Impact")]
     }
   }
 })
