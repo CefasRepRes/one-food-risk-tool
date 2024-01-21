@@ -1,5 +1,5 @@
 ---
-title: "Risk Tool"
+title: "Risk Tool Prototype"
 runtime: shiny
 output: 
   flexdashboard::flex_dashboard:
@@ -395,7 +395,7 @@ updated_data <- reactive({
 sector_cols <- c("#56B4E9",
                           "#009E73",
                           "#0072B2",
-                          "#F0E442")
+                          "#E69F00")
                           
 names(sector_cols) <- c("Aquaculture",
                         "Crops",
@@ -433,7 +433,8 @@ of_plot <- reactive({
     ggplot(data = updated_data()) +
       geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector), 
                col = "white",
-               stat = "identity") +
+               stat = "identity",
+               position = "dodge") +
       scale_fill_manual(values = sector_cols) +
       scale_colour_manual(values = sector_cols) +
       xlab("\nCategory") +
@@ -446,7 +447,8 @@ of_plot <- reactive({
     ggplot(data = updated_data()) +
       geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact), 
                col = "white",
-               stat = "identity") +
+               stat = "identity",
+               position = "dodge") +
       scale_fill_manual(values = impact_cols) +
       scale_colour_manual(values = impact_cols) +
       xlab("\nCategory") +
@@ -459,11 +461,13 @@ of_plot <- reactive({
     ggplot(data = updated_data()) +
       geom_bar(aes(x = Category, y = Score, fill = Sector), 
                col = "white",
-               stat = "identity") +
+               stat = "identity",
+               position = "dodge") +
       scale_fill_manual(values = sector_cols) +
       scale_colour_manual(values = sector_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
+      coord_polar() +
       theme_light() +
       ggtitle("Hazard categories by sector") +
       theme(legend.position = "bottom",
@@ -473,11 +477,13 @@ of_plot <- reactive({
     ggplot(data = updated_data()) +
       geom_bar(aes(x = Category, y = Score, fill = Impact), 
                col = "white",
-               stat = "identity") +
+               stat = "identity",
+               position = "dodge") +
       scale_fill_manual(values = impact_cols) +
       scale_colour_manual(values = impact_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
+      coord_polar() +
       theme_light() +
       ggtitle("Hazard categories by impact") +
       theme(legend.position = "bottom",
