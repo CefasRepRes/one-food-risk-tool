@@ -25,6 +25,7 @@ library(here)
 library(data.table)
 library(DT)
 library(stringr)
+library(patchwork)
 # Install thematic and un-comment for themed static plots (i.e., ggplot2)
 # thematic::thematic_rmd()
 ```
@@ -221,10 +222,17 @@ template_data <- data.frame(Category = NA,
                             Longevity = NA)
 
 # List of impacts/pillars ------------------------------------------------------
-template_impacts <- c("Food production",
-                      "Human health",
-                      "Natural environment",
-                      "Climate change")
+template_pillars <- reactive({data.frame(Pillar = c(rep("Animal/plant health", length(template_creation$template_sector)),
+                                           rep("Environmental health", 3),
+                                           rep("Human health", 3)),
+                                Impact = c(template_creation$template_sector,
+                                           "Biodiversity",
+                                           "Pollution",
+                                           "Carbon footprint",
+                                           "Physical health",
+                                           "Food availability",
+                                           "Income"))
+})
 
 # Create template from inputs
 template_data <- reactive({
@@ -232,24 +240,20 @@ template_data <- reactive({
   ifelse(length(input$template_haz_bio) > 0,
          biological_template <- data.frame(Category = rep("Biological", 
                                                           length(input$template_haz_bio) *
-                                                            length(template_impacts) *
-                                                            length(template_creation$template_sector)),
+                                                            length(template_pillars()$Pillar)),
                                            Hazard = sort(rep(input$template_haz_bio,
-                                                        length(template_impacts) *
-                                                        length(template_creation$template_sector))),
-                                           Impact = rep(sort(rep(template_impacts,
-                                                               length(template_creation$template_sector))),
+                                                        length(template_pillars()$Pillar))),
+                                           Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_bio)),
-                                           Sector = rep(template_creation$template_sector,
-                                                             length(input$template_haz_bio) *
-                                                               length(template_impacts)),
+                                           Impact = rep(template_pillars()$Impact,
+                                                        length(input$template_haz_bio)),
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
          biological_template <- data.frame(Category = NULL,
                                            Hazard = NULL,
+                                           Pillar = NULL,
                                            Impact = NULL,
-                                           Sector = NULL,
                                            Severity = NULL,
                                            Probability = NULL,
                                            Longevity = NULL))
@@ -258,23 +262,20 @@ template_data <- reactive({
   ifelse(length(input$template_haz_chem) > 0,
          chemical_template <- data.frame(Category = rep("Chemical", 
                                                           length(input$template_haz_chem) *
-                                                            length(template_impacts) *
-                                                            length(template_creation$template_sector)),
+                                                            length(template_pillars()$Pillar)),
                                            Hazard = sort(rep(input$template_haz_chem,
-                                                        length(template_impacts) *
-                                                        length(template_creation$template_sector))),
-                                           Impact = rep(sort(rep(template_impacts,
-                                                               length(template_creation$template_sector))),
+                                                        length(template_pillars()$Pillar))),
+                                           Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_chem)),
-                                           Sector = rep(template_creation$template_sector,
-                                                             length(input$template_haz_chem) *
-                                                               length(template_impacts)),
+                                           Impact = rep(template_pillars()$Impact,
+                                                        length(input$template_haz_chem)),
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
          chemical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
-                                         Sector = NULL,
+                                         Pillar = NULL,
+                                         Impact = NULL,
                                          Severity = NULL,
                                          Probability = NULL,
                                          Longevity = NULL))
@@ -283,23 +284,20 @@ template_data <- reactive({
   ifelse(length(input$template_haz_phys) > 0,
          physical_template <- data.frame(Category = rep("Physical", 
                                                           length(input$template_haz_phys) *
-                                                            length(template_impacts) *
-                                                            length(template_creation$template_sector)),
+                                                            length(template_pillars()$Pillar)),
                                            Hazard = sort(rep(input$template_haz_phys,
-                                                        length(template_impacts) *
-                                                        length(template_creation$template_sector))),
-                                           Impact = rep(sort(rep(template_impacts,
-                                                               length(template_creation$template_sector))),
+                                                        length(template_pillars()$Pillar))),
+                                           Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_phys)),
-                                           Sector = rep(template_creation$template_sector,
-                                                             length(input$template_haz_phys) *
-                                                               length(template_impacts)),
+                                           Impact = rep(template_pillars()$Impact,
+                                                        length(input$template_haz_phys)),
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
          physical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
-                                         Sector = NULL,
+                                         Pillar = NULL,
+                                         Impact = NULL,
                                          Severity = NULL,
                                          Probability = NULL,
                                          Longevity = NULL))
@@ -308,23 +306,20 @@ template_data <- reactive({
   ifelse(length(input$template_haz_soc) > 0,
          socio_economic_template <- data.frame(Category = rep("Socio-economic", 
                                                           length(input$template_haz_soc) *
-                                                            length(template_impacts) *
-                                                            length(template_creation$template_sector)),
+                                                            length(template_pillars()$Pillar)),
                                            Hazard = sort(rep(input$template_haz_soc,
-                                                        length(template_impacts) *
-                                                        length(template_creation$template_sector))),
-                                           Impact = rep(sort(rep(template_impacts,
-                                                               length(template_creation$template_sector))),
+                                                        length(template_pillars()$Pillar))),
+                                           Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_soc)),
-                                           Sector = rep(template_creation$template_sector,
-                                                             length(input$template_haz_soc) *
-                                                               length(template_impacts)),
+                                           Impact = rep(template_pillars()$Impact,
+                                                        length(input$template_haz_soc)),
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
          socio_economic_template <- data.frame(Category = NULL,
                                                Hazard = NULL,
-                                               Sector = NULL,
+                                               Pillar = NULL,
+                                               Impact = NULL,
                                                Severity = NULL,
                                                Probability = NULL,
                                                Longevity = NULL))
@@ -437,8 +432,8 @@ output$category <- renderUI({
 output$fill <- renderUI({
   if(input$type %in% c("Hazard overview", "Hazard category")){
     selectInput(inputId = "fill",
-                label = "Fill by sector or impact",
-                choices = c("Sector",
+                label = "Fill by pillar or impact",
+                choices = c("Pillar",
                             "Impact"))
   }
 })
@@ -451,7 +446,7 @@ uiOutput("fill")
 Column {data-width=650 .tabset}
 -----------------------------------------------------------------------
 
-### Plot - Bar
+### Plot
 
 ```{r}
 # Edit synthetic data
@@ -463,14 +458,14 @@ updated_data <- reactive({
     hazard_scores$user$Score <- hazard_scores$user$Severity * hazard_scores$user$Probability * hazard_scores$user$Longevity
   }
   if(input$type == "Hazard category"){
-    if(input$fill == "Sector"){
-      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Sector", "Hazard")]
+    if(input$fill == "Pillar"){
+      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Pillar", "Hazard")]
     } else if(input$fill == "Impact"){
       hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
     }
   } else if(input$type == "Hazard overview"){
-    if(input$fill == "Sector"){
-      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Sector")]
+    if(input$fill == "Pillar"){
+      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Pillar")]
     } else if(input$fill == "Impact"){
       hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Impact")]
     }
@@ -483,7 +478,9 @@ updated_data <- reactive({
 ## Sector =====
 # Okabe-Ito palette
 sector_cols <- c("#E69F00", "#56B4E9", "#009E73", 
-                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7",
+                       "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", 
+                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC")
 
 ## Hazard category =====
 
@@ -497,90 +494,18 @@ names(category_cols) <- c("Biological",
                           "Physical",
                           "Socio-economic")
 
-## Impact ====
+## Pillars ====
 
-impact_cols <- c("#DDCC77",
-                          "#882255",
+pillar_cols <- c("#6699CC",
                           "#117733",
-                          "#6699CC")
+                          "#882255")
                           
-names(impact_cols) <- c("Food production",
-                        "Human health",
-                        "Natural environment",
-                        "Climate change")
+names(pillar_cols) <- c("Animal/plant health",
+                        "Environmental health",
+                        "Human health")
 
-# Plots
-of_plot <- reactive({
-  if(input$type == "Hazard category" &&
-     input$fill == "Sector"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector), 
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = sector_cols) +
-      scale_colour_manual(values = sector_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard category" &&
-            input$fill == "Impact"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact), 
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Sector"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Sector),
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = sector_cols) +
-      scale_colour_manual(values = sector_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      ggtitle("Hazard categories by sector") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Impact"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Impact),
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  }
-})
-
-# Plot
-renderPlot({
-  of_plot()
-})
-```
-
-### Plot - Spider
-
-```{r}
-coord_radar <- function (theta = "x", start = 0, direction = 1) 
-
-
- {
+# Code for radar plot
+coord_radar <- function (theta = "x", start = 0, direction = 1){
         theta <- match.arg(theta, c("x", "y"))
         r <- if (theta == "x") 
             "y"
@@ -588,68 +513,105 @@ coord_radar <- function (theta = "x", start = 0, direction = 1)
         ggproto("CordRadar", CoordPolar, theta = theta, r = r, start = start, 
             direction = sign(direction),
             is_linear = function(coord) TRUE)
-    }
+        }
+
 # Plots
-of_spider <- reactive({
+of_plot <- reactive({
   if(input$type == "Hazard category" &&
-     input$fill == "Sector"){
+     input$fill == "Pillar"){
     ggplot(data = updated_data()) +
-      geom_point(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector)) +
-      scale_colour_manual(values = sector_cols) +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Pillar,
+                   col = Pillar), 
+               stat = "identity",
+               position = "dodge",
+               alpha = 0.8) +
+      scale_fill_manual(values = pillar_cols) +
+      scale_colour_manual(values = pillar_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 20))
+            text = element_text(size = 15))
   } else if(input$type == "Hazard category" &&
             input$fill == "Impact"){
     ggplot(data = updated_data()) +
-      geom_point(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact)) +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact,
+                   col = Impact), 
+               stat = "identity",
+               position = "dodge",
+               alpha = 0.8) +
+      scale_fill_manual(values = sector_cols) +
+      scale_colour_manual(values = sector_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 20))
+            text = element_text(size = 15))
   } else if(input$type == "Hazard overview" &&
-            input$fill == "Sector"){
-    ggplot(data = updated_data(),
-           aes(x = Category, y = Score, col = Sector, group = Sector,
-               fill = Sector)) +
+            input$fill == "Pillar"){
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Pillar,
+                   col = Pillar),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = pillar_cols) +
+      scale_colour_manual(values = pillar_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15))
+    spider <- ggplot(data = updated_data(),
+           aes(x = Category, y = Score, col = Pillar, group = Pillar,
+               fill = Pillar)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
-      scale_colour_manual(values = sector_cols) +
-      scale_fill_manual(values = sector_cols) +
-      xlab("\nCategory") +
+      scale_colour_manual(values = pillar_cols) +
+      scale_fill_manual(values = pillar_cols) +
+      xlab("") +
       ylab("Hazard score\n") +
       coord_radar() +
       theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar 
   } else if(input$type == "Hazard overview" &&
             input$fill == "Impact"){
-    ggplot(data = updated_data(),
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Impact,
+                   col = Impact),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = sector_cols) +
+      scale_colour_manual(values = sector_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15)) +
+      guides(fill = guide_legend(nrow = 2))
+    spider <- ggplot(data = updated_data(),
            aes(x = Category, y = Score, col = Impact, group = Impact,
                fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
-      scale_colour_manual(values = impact_cols) +
-      scale_fill_manual(values = impact_cols) +
-      xlab("\nCategory") +
+      scale_colour_manual(values = sector_cols) +
+      scale_fill_manual(values = sector_cols) +
+      xlab("") +
       ylab("Hazard score\n") +
       coord_radar() +
       theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar
   }
 })
 
 # Plot
 renderPlot({
-  of_spider()
+  of_plot()
 })
 ```
 
