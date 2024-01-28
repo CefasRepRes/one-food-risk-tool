@@ -7,7 +7,7 @@ output:
     theme:
       bg: "#ffffff"
       fg: "#2a398e" 
-      primary: "#69c8f0"
+      primary: "#9fdbf5"
       base_font:
         google: Open Sans
       code_font:
@@ -206,21 +206,35 @@ template_data <- data.frame(Category = NA,
                             Probability = NA,
                             Longevity = NA)
 
+# List of impacts/pillars ------------------------------------------------------
+template_impacts <- c("Food prodution",
+                      "Human health",
+                      "Natural environment",
+                      "Climate change")
+
 # Create template from inputs
 template_data <- reactive({
   # Biological
   ifelse(length(input$template_haz_bio) > 0,
          biological_template <- data.frame(Category = rep("Biological", 
-                                                          length(input$template_haz_bio) * length(input$template_sector)),
-                                           Hazard = rep(input$template_haz_bio,
-                                                        length(input$template_sector)),
-                                           Sector = sort(rep(input$template_sector,
-                                                             length(input$template_haz_bio))),
+                                                          length(input$template_haz_bio) *
+                                                            length(template_impacts) *
+                                                            length(input$template_sector)),
+                                           Hazard = sort(rep(input$template_haz_bio,
+                                                        length(template_impacts) *
+                                                        length(input$template_sector))),
+                                           Impact = rep(sort(rep(template_impacts,
+                                                               length(input$template_sector))),
+                                                        length(input$template_haz_bio)),
+                                           Sector = rep(input$template_sector,
+                                                             length(input$template_haz_bio) *
+                                                               length(template_impacts)),
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
          biological_template <- data.frame(Category = NULL,
                                            Hazard = NULL,
+                                           Impact = NULL,
                                            Sector = NULL,
                                            Severity = NULL,
                                            Probability = NULL,
@@ -228,13 +242,22 @@ template_data <- reactive({
   
   # Chemical
   ifelse(length(input$template_haz_chem) > 0,
-         chemical_template <- data.frame(Category = rep("Chemical", length(input$template_haz_chem)),
-                                         Hazard = input$template_haz_chem,
-                                         Sector = sort(rep(input$template_sector,
-                                                           length(input$template_haz_chem))),
-                                         Severity = NA,
-                                         Probability = NA,
-                                         Longevity = NA),
+         chemical_template <- data.frame(Category = rep("Chemical", 
+                                                          length(input$template_haz_chem) *
+                                                            length(template_impacts) *
+                                                            length(input$template_sector)),
+                                           Hazard = sort(rep(input$template_haz_chem,
+                                                        length(template_impacts) *
+                                                        length(input$template_sector))),
+                                           Impact = rep(sort(rep(template_impacts,
+                                                               length(input$template_sector))),
+                                                        length(input$template_haz_chem)),
+                                           Sector = rep(input$template_sector,
+                                                             length(input$template_haz_chem) *
+                                                               length(template_impacts)),
+                                           Severity = NA,
+                                           Probability = NA,
+                                           Longevity = NA),
          chemical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
                                          Sector = NULL,
@@ -244,13 +267,22 @@ template_data <- reactive({
   
   # Physical
   ifelse(length(input$template_haz_phys) > 0,
-         physical_template <- data.frame(Category = rep("Physical", length(input$template_haz_phys)),
-                                         Hazard = input$template_haz_phys,
-                                         Sector = sort(rep(input$template_sector,
-                                                           length(input$template_haz_phys))),
-                                         Severity = NA,
-                                         Probability = NA,
-                                         Longevity = NA),
+         physical_template <- data.frame(Category = rep("Physical", 
+                                                          length(input$template_haz_phys) *
+                                                            length(template_impacts) *
+                                                            length(input$template_sector)),
+                                           Hazard = sort(rep(input$template_haz_phys,
+                                                        length(template_impacts) *
+                                                        length(input$template_sector))),
+                                           Impact = rep(sort(rep(template_impacts,
+                                                               length(input$template_sector))),
+                                                        length(input$template_haz_phys)),
+                                           Sector = rep(input$template_sector,
+                                                             length(input$template_haz_phys) *
+                                                               length(template_impacts)),
+                                           Severity = NA,
+                                           Probability = NA,
+                                           Longevity = NA),
          physical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
                                          Sector = NULL,
@@ -260,13 +292,22 @@ template_data <- reactive({
   
   # Socio-economic
   ifelse(length(input$template_haz_soc) > 0,
-         socio_economic_template <- data.frame(Category = rep("Socio-economic", length(input$template_haz_soc)),
-                                               Hazard = input$template_haz_soc,
-                                               Sector = sort(rep(input$template_sector,
-                                                                 length(input$template_haz_soc))),
-                                               Severity = NA,
-                                               Probability = NA,
-                                               Longevity = NA),
+         socio_economic_template <- data.frame(Category = rep("Socio-economic", 
+                                                          length(input$template_haz_soc) *
+                                                            length(template_impacts) *
+                                                            length(input$template_sector)),
+                                           Hazard = sort(rep(input$template_haz_soc,
+                                                        length(template_impacts) *
+                                                        length(input$template_sector))),
+                                           Impact = rep(sort(rep(template_impacts,
+                                                               length(input$template_sector))),
+                                                        length(input$template_haz_soc)),
+                                           Sector = rep(input$template_sector,
+                                                             length(input$template_haz_soc) *
+                                                               length(template_impacts)),
+                                           Severity = NA,
+                                           Probability = NA,
+                                           Longevity = NA),
          socio_economic_template <- data.frame(Category = NULL,
                                                Hazard = NULL,
                                                Sector = NULL,
@@ -317,7 +358,7 @@ Column
 # Upload button
 fileInput(inputId = "upload",
           label = "Upload hazard scores:",
-          accept = ".xlsx")
+          accept = ".csv")
 
 # Store upload in reactive value
 hazard_scores <- reactiveValues(user = NULL)
@@ -328,7 +369,7 @@ observe({
   req(input$upload)
   
   # Read file
-  file <- readxl::read_xlsx(path = input$upload$datapath)
+  file <- read.csv(file = input$upload$datapath)
   
   # Convert to data table
   file <- data.table(file)
