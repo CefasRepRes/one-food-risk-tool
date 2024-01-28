@@ -86,6 +86,9 @@ Column {data-width=250}
 
 #### Sector selection
 
+Please input the sector(s) you wish to evaluate.
+Please separate multiple sectors with a comma **,**
+
 ```{r}
 textInput(inputId = "input_sector",
                    label = "Sector(s):")
@@ -99,7 +102,7 @@ observe({
   req(input$input_sector)
   
   # Split string
-  sector_split <- stringr::str_split_1(input$input_sector, ",")
+  sector_split <- stringr::str_split_1(input$input_sector, ", ")
   
   # Assign to reactive value
   template_creation$template_sector <- sector_split
@@ -218,7 +221,7 @@ template_data <- data.frame(Category = NA,
                             Longevity = NA)
 
 # List of impacts/pillars ------------------------------------------------------
-template_impacts <- c("Food prodution",
+template_impacts <- c("Food production",
                       "Human health",
                       "Natural environment",
                       "Climate change")
@@ -478,16 +481,9 @@ updated_data <- reactive({
 # Colour palettes --------------------------------------------------------------
 
 ## Sector =====
-
-sector_cols <- c("#56B4E9",
-                          "#009E73",
-                          "#0072B2",
-                          "#E69F00")
-                          
-names(sector_cols) <- c("Aquaculture",
-                        "Crops",
-                        "Fisheries",
-                        "Livestock")
+# Okabe-Ito palette
+sector_cols <- c("#E69F00", "#56B4E9", "#009E73", 
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 ## Hazard category =====
 
