@@ -24,6 +24,7 @@ library(readxl)
 library(here)
 library(data.table)
 library(DT)
+library(stringr)
 # Install thematic and un-comment for themed static plots (i.e., ggplot2)
 # thematic::thematic_rmd()
 ```
@@ -86,13 +87,23 @@ Column {data-width=250}
 #### Sector selection
 
 ```{r}
-checkboxGroupInput(inputId = "template_sector",
-                   label = "Sector",
-                   choices = c("Aquaculture",
-                               "Capture Fisheries",
-                               "Crops",
-                               "Terrestrial Livestock",
-                               "Wild Foraging"))
+textInput(inputId = "input_sector",
+                   label = "Sector(s):")
+
+# Store upload in reactive value
+template_creation <- reactiveValues(user = NULL)
+
+# Load data
+observe({
+  # Ensure upload has been set
+  req(input$input_sector)
+  
+  # Split string
+  sector_split <- stringr::str_split_1(input$input_sector, ",")
+  
+  # Assign to reactive value
+  template_creation$template_sector <- sector_split
+})
 ```
 
 Column {data-width=650 .tabset}
@@ -219,14 +230,14 @@ template_data <- reactive({
          biological_template <- data.frame(Category = rep("Biological", 
                                                           length(input$template_haz_bio) *
                                                             length(template_impacts) *
-                                                            length(input$template_sector)),
+                                                            length(template_creation$template_sector)),
                                            Hazard = sort(rep(input$template_haz_bio,
                                                         length(template_impacts) *
-                                                        length(input$template_sector))),
+                                                        length(template_creation$template_sector))),
                                            Impact = rep(sort(rep(template_impacts,
-                                                               length(input$template_sector))),
+                                                               length(template_creation$template_sector))),
                                                         length(input$template_haz_bio)),
-                                           Sector = rep(input$template_sector,
+                                           Sector = rep(template_creation$template_sector,
                                                              length(input$template_haz_bio) *
                                                                length(template_impacts)),
                                            Severity = NA,
@@ -245,14 +256,14 @@ template_data <- reactive({
          chemical_template <- data.frame(Category = rep("Chemical", 
                                                           length(input$template_haz_chem) *
                                                             length(template_impacts) *
-                                                            length(input$template_sector)),
+                                                            length(template_creation$template_sector)),
                                            Hazard = sort(rep(input$template_haz_chem,
                                                         length(template_impacts) *
-                                                        length(input$template_sector))),
+                                                        length(template_creation$template_sector))),
                                            Impact = rep(sort(rep(template_impacts,
-                                                               length(input$template_sector))),
+                                                               length(template_creation$template_sector))),
                                                         length(input$template_haz_chem)),
-                                           Sector = rep(input$template_sector,
+                                           Sector = rep(template_creation$template_sector,
                                                              length(input$template_haz_chem) *
                                                                length(template_impacts)),
                                            Severity = NA,
@@ -270,14 +281,14 @@ template_data <- reactive({
          physical_template <- data.frame(Category = rep("Physical", 
                                                           length(input$template_haz_phys) *
                                                             length(template_impacts) *
-                                                            length(input$template_sector)),
+                                                            length(template_creation$template_sector)),
                                            Hazard = sort(rep(input$template_haz_phys,
                                                         length(template_impacts) *
-                                                        length(input$template_sector))),
+                                                        length(template_creation$template_sector))),
                                            Impact = rep(sort(rep(template_impacts,
-                                                               length(input$template_sector))),
+                                                               length(template_creation$template_sector))),
                                                         length(input$template_haz_phys)),
-                                           Sector = rep(input$template_sector,
+                                           Sector = rep(template_creation$template_sector,
                                                              length(input$template_haz_phys) *
                                                                length(template_impacts)),
                                            Severity = NA,
@@ -295,14 +306,14 @@ template_data <- reactive({
          socio_economic_template <- data.frame(Category = rep("Socio-economic", 
                                                           length(input$template_haz_soc) *
                                                             length(template_impacts) *
-                                                            length(input$template_sector)),
+                                                            length(template_creation$template_sector)),
                                            Hazard = sort(rep(input$template_haz_soc,
                                                         length(template_impacts) *
-                                                        length(input$template_sector))),
+                                                        length(template_creation$template_sector))),
                                            Impact = rep(sort(rep(template_impacts,
-                                                               length(input$template_sector))),
+                                                               length(template_creation$template_sector))),
                                                         length(input$template_haz_soc)),
-                                           Sector = rep(input$template_sector,
+                                           Sector = rep(template_creation$template_sector,
                                                              length(input$template_haz_soc) *
                                                                length(template_impacts)),
                                            Severity = NA,
