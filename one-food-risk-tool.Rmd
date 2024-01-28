@@ -25,6 +25,7 @@ library(here)
 library(data.table)
 library(DT)
 library(stringr)
+library(patchwork)
 # Install thematic and un-comment for themed static plots (i.e., ggplot2)
 # thematic::thematic_rmd()
 ```
@@ -451,7 +452,7 @@ uiOutput("fill")
 Column {data-width=650 .tabset}
 -----------------------------------------------------------------------
 
-### Plot - Bar
+### Plot
 
 ```{r}
 # Edit synthetic data
@@ -509,78 +510,8 @@ names(impact_cols) <- c("Food production",
                         "Natural environment",
                         "Climate change")
 
-# Plots
-of_plot <- reactive({
-  if(input$type == "Hazard category" &&
-     input$fill == "Sector"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector), 
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = sector_cols) +
-      scale_colour_manual(values = sector_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard category" &&
-            input$fill == "Impact"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact), 
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Sector"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Sector),
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = sector_cols) +
-      scale_colour_manual(values = sector_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      ggtitle("Hazard categories by sector") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Impact"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Impact),
-               stat = "identity",
-               position = "stack") +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
-  }
-})
-
-# Plot
-renderPlot({
-  of_plot()
-})
-```
-
-### Plot - Spider
-
-```{r}
-coord_radar <- function (theta = "x", start = 0, direction = 1) 
-
-
- {
+# Code for radar plot
+coord_radar <- function (theta = "x", start = 0, direction = 1){
         theta <- match.arg(theta, c("x", "y"))
         r <- if (theta == "x") 
             "y"
@@ -588,68 +519,105 @@ coord_radar <- function (theta = "x", start = 0, direction = 1)
         ggproto("CordRadar", CoordPolar, theta = theta, r = r, start = start, 
             direction = sign(direction),
             is_linear = function(coord) TRUE)
-    }
+        }
+
 # Plots
-of_spider <- reactive({
+of_plot <- reactive({
   if(input$type == "Hazard category" &&
      input$fill == "Sector"){
     ggplot(data = updated_data()) +
-      geom_point(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector)) +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Sector,
+                   col = Sector), 
+               stat = "identity",
+               position = "dodge",
+               alpha = 0.8) +
+      scale_fill_manual(values = sector_cols) +
       scale_colour_manual(values = sector_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 20))
+            text = element_text(size = 15))
   } else if(input$type == "Hazard category" &&
             input$fill == "Impact"){
     ggplot(data = updated_data()) +
-      geom_point(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact)) +
+      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact,
+                   col = Impact), 
+               stat = "identity",
+               position = "dodge",
+               alpha = 0.8) +
       scale_fill_manual(values = impact_cols) +
       scale_colour_manual(values = impact_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 20))
+            text = element_text(size = 15))
   } else if(input$type == "Hazard overview" &&
             input$fill == "Sector"){
-    ggplot(data = updated_data(),
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Sector,
+                   col = Sector),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = sector_cols) +
+      scale_colour_manual(values = sector_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15))
+    spider <- ggplot(data = updated_data(),
            aes(x = Category, y = Score, col = Sector, group = Sector,
                fill = Sector)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
       scale_colour_manual(values = sector_cols) +
       scale_fill_manual(values = sector_cols) +
-      xlab("\nCategory") +
+      xlab("") +
       ylab("Hazard score\n") +
       coord_radar() +
       theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar 
   } else if(input$type == "Hazard overview" &&
             input$fill == "Impact"){
-    ggplot(data = updated_data(),
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Impact,
+                   col = Impact),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = impact_cols) +
+      scale_colour_manual(values = impact_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15)) +
+      guides(fill = guide_legend(nrow = 2))
+    spider <- ggplot(data = updated_data(),
            aes(x = Category, y = Score, col = Impact, group = Impact,
                fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
       scale_colour_manual(values = impact_cols) +
       scale_fill_manual(values = impact_cols) +
-      xlab("\nCategory") +
+      xlab("") +
       ylab("Hazard score\n") +
       coord_radar() +
       theme_light() +
-      ggtitle("Hazard categories by impact") +
-      theme(legend.position = "bottom",
-            text = element_text(size = 20))
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar
   }
 })
 
 # Plot
 renderPlot({
-  of_spider()
+  of_plot()
 })
 ```
 
