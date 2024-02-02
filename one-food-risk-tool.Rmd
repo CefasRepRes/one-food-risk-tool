@@ -121,100 +121,43 @@ renderText({
 })
 ```
 
-Step 2 - Hazard Selection {data-navmenu="Risk tool"}
+Step 2 - Hazard selection {data-navmenu="Risk tool"}
 ================================================================================
 
 Column {data-width=650 .tabset}
 --------------------------------------------------------------------------------
 
-#### Hazard selection
-
-### Biological
+#### Step 2 of 4: Hazard selection
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_bio",
                    label = "Biological hazards",
-                   choices = c("Pathogens - Fungal",
-                               "Pathogens - Bacterial",
-                               "Pathogens - Viral",
-                               "Pathogens - Protistan",
-                               "Weeds",
-                               "Pests - Arthropods",
-                               "Pests - Helminths",
-                               "Pests - Molluscs",
-                               "Human-wildlife conflict",
-                               "Harmful algal blooms",
-                               "Extraction of wild organisms",
-                               "Biodiversity loss",
-                               "Range shifts",
-                               "Invasive non-native species",
-                               "Genetically modified organisms"))
+                   choices = c("Pathogens - Fungal"),
+                   selected = c("Pathogens - Fungal"))
 ```
 
-### Chemical
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_chem",
                    label = "Chemical hazards",
-                   choices = c("Pesticides",
-                               "Herbicides",
-                               "Antimicrobials",
-                               "Antihelminthics",
-                               "NPKS fertlisers",
-                               "Poor soil chemistry",
-                               "Methanogenesis",
-                               "Heavy metals",
-                               "Salinity incursions",
-                               "Disinfectants",
-                               "Plastics - Food production",
-                               "Air pollution",
-                               "Radiological contamination",
-                               "Chemical spillages",
-                               "Ocean acidification",
-                               "Hypoxia",
-                               "Refrigeration",
-                               "Carbon dioxide emissions",
-                               "E-waste"))
+                   choices = c("Antimicrobials"),
+                   selected = c("Antimicrobials"))
 ```
 
-### Physical
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_phys",
                    label = "Physical hazards",
-                   choices = c("Water scarcity",
-                               "Flooding",
-                               "Temperature",
-                               "Extreme temperatures",
-                               "Storms",
-                               "Wildfires",
-                               "Noise and light pollution",
-                               "Tillage",
-                               "Soil erosion and compaction",
-                               "Destructive fishing practices",
-                               "Food waste - Unavoidable",
-                               "Food packaging",
-                               "Mis-sold goods",
-                               "Land use change"))
+                   choices = c("Water scarcity"),
+                   selected = c("Water scarcity"))
 ```
 
-### Socio-economic
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_soc",
                    label = "Socio-economic hazards",
-                   choices = c("Reduced labour force",
-                               "Food waste - Avoidable",
-                               "Population growth",
-                               "Food production costs",
-                               "Human disease",
-                               "Human conflict",
-                               "Lack of knowledge",
-                               "Access to veterinary services",
-                               "Dietary changes",
-                               "Land rights",
-                               "Energy policies",
-                               "Food subsidies"))
+                   choices = c("Food price inflation"),
+                   selected = c("Food price inflation"))
 ```
 
 Step 3 - Hazard Scoring {data-navmenu="Risk tool"}
