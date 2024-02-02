@@ -79,20 +79,21 @@ Upload the risk scores.
 Once you have uploaded the risk scores, you can visualise the results in **Risk visualiser** under **Risk tool visualiser**.
 You can also view the risk scores data in the data tab.
 
-Hazard and sector selection {data-navmenu="Risk score template" data-icon="fa-square-check"}
+Step 1 - Sector Selection {data-navmenu="Risk tool"}
 ================================================================================
 
-Column {data-width=250}
+Column {data-width=650}
 --------------------------------------------------------------------------------
 
-#### Sector selection
+##### Step 1 of 4: Sector selection
 
-Please input the sector(s) you wish to evaluate.
-Please separate multiple sectors with a comma **,**
+Please input your sector(s).
+Please separate multiple sectors with a comma.
 
 ```{r}
 textInput(inputId = "input_sector",
-                   label = "Sector(s):")
+                   label = "Sector(s):",
+          placeholder = "Plese entor your sector(s)")
 
 # Store upload in reactive value
 template_creation <- reactiveValues(user = NULL)
@@ -109,6 +110,19 @@ observe({
   template_creation$template_sector <- sector_split
 })
 ```
+
+You have selected:
+
+```{r}
+# View
+renderText({
+  req(input$input_sector)
+  input$input_sector
+})
+```
+
+Step 2 - Hazard Selection {data-navmenu="Risk tool"}
+================================================================================
 
 Column {data-width=650 .tabset}
 --------------------------------------------------------------------------------
@@ -203,10 +217,10 @@ checkboxGroupInput(inputId = "template_haz_soc",
                                "Food subsidies"))
 ```
 
-Data template download {data-navmenu="Risk score template" data-icon="fa-file-excel"}
+Step 3 - Hazard Scoring {data-navmenu="Risk tool"}
 ================================================================================
 
-Column {data-width=650}
+Column {data-width=650 .tabset}
 --------------------------------------------------------------------------------
 
 #### View template
@@ -362,9 +376,6 @@ output$download_button <- renderUI({downloadButton(outputId = "template",
 uiOutput("download_button")
 ```
 
-Data upload {data-navmenu="Risk tool visualiser" data-icon="fa-upload"}
-================================================================================
-
 Column
 --------------------------------------------------------------------------------
 #### Data upload
@@ -407,7 +418,7 @@ selectInput(inputId = "method",
                         "Multiplicative"))
 ```
 
-Risk visualiser {data-navmenu="Risk tool visualiser" data-icon="fa-chart-pie"}
+Step 4 - Risk visualisation {data-navmenu="Risk tool"}
 ================================================================================
 
 Column {data-width=350 .sidebar}
