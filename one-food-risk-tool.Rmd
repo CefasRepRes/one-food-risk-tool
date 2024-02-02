@@ -25,6 +25,7 @@ library(here)
 library(data.table)
 library(DT)
 library(stringr)
+library(openxlsx)
 library(patchwork)
 # Install thematic and un-comment for themed static plots (i.e., ggplot2)
 # thematic::thematic_rmd()
@@ -85,7 +86,7 @@ Step 1 - Sector Selection {data-navmenu="Risk tool"}
 Column {data-width=650}
 --------------------------------------------------------------------------------
 
-##### Step 1 of 4: Sector selection
+#### Step 1 of 5: Sector selection
 
 Please input your sector(s).
 Please separate multiple sectors with a comma.
@@ -93,7 +94,7 @@ Please separate multiple sectors with a comma.
 ```{r}
 textInput(inputId = "input_sector",
                    label = "Sector(s):",
-          placeholder = "Plese entor your sector(s)")
+          placeholder = "Please entor your sector(s)")
 
 # Store upload in reactive value
 template_creation <- reactiveValues(user = NULL)
@@ -127,7 +128,7 @@ Step 2 - Hazard selection {data-navmenu="Risk tool"}
 Column {data-width=650 .tabset}
 --------------------------------------------------------------------------------
 
-#### Step 2 of 4: Hazard selection
+#### Step 2 of 5: Hazard selection
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_bio",
@@ -160,13 +161,18 @@ checkboxGroupInput(inputId = "template_haz_soc",
                    selected = c("Food price inflation"))
 ```
 
-Step 3 - Hazard Scoring {data-navmenu="Risk tool"}
+Step 3 - Hazard scoring {data-navmenu="Risk tool"}
 ================================================================================
+
+#### Step 3 of 5: Hazard scoring
+
+Check the generated table for hazard scoring.
+When happy, download the template and complete the scores in Excel.
 
 Column {data-width=650 .tabset}
 --------------------------------------------------------------------------------
 
-#### View template
+### View template
 
 ```{r}
 # Base template ----------------------------------------------------------------
@@ -280,18 +286,19 @@ template_data <- reactive({
                                                Severity = NULL,
                                                Probability = NULL,
                                                Longevity = NULL))
-  rbind(biological_template,
+  template <- rbind(biological_template,
         chemical_template,
         physical_template,
-        socio_economic_template)
+        socio_economic_template) %>% data.table()
+  template[order(Pillar)]
 })
 
 # Create download handler
 output$template <- downloadHandler(filename = function(){
-  paste0(Sys.Date(), "_risk_score_template.csv")
+  paste0(Sys.Date(), "_risk_score_template.xlsx")
 }, 
 content = function(file){
-  write.csv(template_data(), file, row.names = F)
+  write.xlsx(template_data(), file)
 })
 
 renderDataTable({
@@ -309,11 +316,16 @@ Column {data-width=200}
 ```{r}
 # Download button --------------------------------------------------------------
 output$download_button <- renderUI({downloadButton(outputId = "template",
-                                                   label = "Download .csv")})
+                                                   label = "Download .xlsx")})
 uiOutput("download_button")
 ```
 
-Column
+Step 4 - Score upload {data-navmenu="Risk tool"}
+================================================================================
+
+#### Step 4 of 5: Score upload
+
+Column {data-width = 650 .tabset}
 --------------------------------------------------------------------------------
 #### Data upload
 
@@ -321,7 +333,7 @@ Column
 # Upload button
 fileInput(inputId = "upload",
           label = "Upload hazard scores:",
-          accept = ".csv")
+          accept = ".xlsx")
 
 # Store upload in reactive value
 hazard_scores <- reactiveValues(user = NULL)
@@ -332,7 +344,8 @@ observe({
   req(input$upload)
   
   # Read file
-  file <- read.csv(file = input$upload$datapath)
+  file <- read.xlsx(xlsxFile = input$upload$datapath,
+                   sheet = 1)
   
   # Convert to data table
   file <- data.table(file)
@@ -345,17 +358,15 @@ observe({
 
 #### Score generation
 
-Choose whether the final hazard score will be generatived by additive or multiplicative methods.
-
 ```{r}
-# Additive or multiplicative score generation
+# Add or multiplicative score generation
 selectInput(inputId = "method",
-            label = "Score generation method:",
-            choices = c("Additive",
-                        "Multiplicative"))
+            label = "How do you want to calculate the overall hazard score?",
+            choices = c("Add",
+                        "Multiply"))
 ```
 
-Step 4 - Risk visualisation {data-navmenu="Risk tool"}
+Step 5 - Risk visualisation {data-navmenu="Risk tool"}
 ================================================================================
 
 Column {data-width=350 .sidebar}
@@ -405,7 +416,7 @@ Column {data-width=650 .tabset}
 ```{r}
 # Edit synthetic data
 updated_data <- reactive({
-  if(input$method == "Additive"){
+  if(input$method == "Add"){
     hazard_scores$user$Score <- hazard_scores$user$Severity + hazard_scores$user$Probability + hazard_scores$user$Longevity
   }
   if(input$method == "Multiplicative"){
@@ -438,10 +449,10 @@ sector_cols <- c("#E69F00", "#56B4E9", "#009E73",
 
 ## Hazard category =====
 
-category_cols <- c("#CC6677",
-                            "#44AA99",
-                            "#6699CC",
-                            "#AA4499")
+category_cols <- c("#E69F00",
+                            "#56B4E9",
+                            "#009E73",
+                            "#D55E00")
                             
 names(category_cols) <- c("Biological",
                           "Chemical",
