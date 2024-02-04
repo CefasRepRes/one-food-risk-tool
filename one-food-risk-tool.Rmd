@@ -376,36 +376,24 @@ Column {data-width=350 .sidebar}
 # First input selector
 # View by sector or by hazard category
 selectInput(inputId = "type",
-            label = "Type",
-            choices = c("Hazard overview",
-                        "Hazard category"))
+            label = "Overview or pillar:",
+            choices = c("Overview",
+                        "Pillar"))
 
 # Second input selectors -------------------------------------------------------
 
-# Options for hazard category
-output$category <- renderUI({
-  if(input$type == "Hazard category")
-    selectInput(inputId = "category",
-                label = "Hazard category",
-                choices = c("Biological",
-                            "Chemical",
-                            "Physical",
-                            "Socio-economic"))
-})
-
-# Display by sector or impact
-output$fill <- renderUI({
-  if(input$type %in% c("Hazard overview", "Hazard category")){
-    selectInput(inputId = "fill",
-                label = "Fill by pillar or impact",
-                choices = c("Pillar",
-                            "Impact"))
-  }
+# Options for pillar
+output$pillar <- renderUI({
+  if(input$type == "Pillar")
+    selectInput(inputId = "pillar",
+                label = "Which pillar:",
+                choices = c("Animal/plant health",
+                            "Environmental health",
+                            "Human health"))
 })
 
 # Render UIs
-uiOutput("category")
-uiOutput("fill")
+uiOutput("pillar")
 ```
 
 Column {data-width=650 .tabset}
@@ -419,36 +407,25 @@ updated_data <- reactive({
   if(input$method == "Add"){
     hazard_scores$user$Score <- hazard_scores$user$Severity + hazard_scores$user$Probability + hazard_scores$user$Longevity
   }
-  if(input$method == "Multiplicative"){
+  if(input$method == "Multiply"){
     hazard_scores$user$Score <- hazard_scores$user$Severity * hazard_scores$user$Probability * hazard_scores$user$Longevity
   }
-  if(input$type == "Hazard category"){
-    if(input$fill == "Pillar"){
-      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Pillar", "Hazard")]
-    } else if(input$fill == "Impact"){
-      hazard_scores$user[Category %in% input$category][, .(Score = sum(Score)), by = c("Impact", "Hazard")]
-    }
-  } else if(input$type == "Hazard overview"){
-    if(input$fill == "Pillar"){
-      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Pillar")]
-    } else if(input$fill == "Impact"){
-      hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Impact")]
+  if(input$type == "Overview"){
+    hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Pillar")]
+  } else if(input$type == "Pillar"){
+    if(input$pillar == "Animal/plant health"){
+      hazard_scores$user[Pillar == "Animal/plant health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
+    } else if(input$pillar == "Environmental health"){
+      hazard_scores$user[Pillar == "Environmental health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
+    } else if(input$pillar == "Human health"){
+      hazard_scores$user[Pillar == "Human health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
     }
   }
 })
 
-
 # Colour palettes --------------------------------------------------------------
 
-## Sector =====
-# Okabe-Ito palette
-sector_cols <- c("#E69F00", "#56B4E9", "#009E73", 
-                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7",
-                       "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499", 
-                             "#44AA99", "#999933", "#882255", "#661100", "#6699CC")
-
 ## Hazard category =====
-
 category_cols <- c("#E69F00",
                             "#56B4E9",
                             "#009E73",
@@ -460,7 +437,6 @@ names(category_cols) <- c("Biological",
                           "Socio-economic")
 
 ## Pillars ====
-
 pillar_cols <- c("#6699CC",
                           "#117733",
                           "#882255")
@@ -468,6 +444,27 @@ pillar_cols <- c("#6699CC",
 names(pillar_cols) <- c("Animal/plant health",
                         "Environmental health",
                         "Human health")
+
+## Impacts ====
+
+# Sector / animal/plant health
+  # Okabe-Ito palette
+sector_cols <- c("#E69F00", "#56B4E9", "#009E73", 
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                       
+# Environmental health
+env_cols <- c("#44AA99",
+                       "#332288",
+                       "#117733")
+                       
+names(env_cols) <- c("Biodiversity",
+                     "Pollution",
+                     "Carbon footprint")
+
+# Human health
+hum_cols <- c("#f28d9d",
+                       "#AA4499",
+                       "#661100")
 
 # Code for radar plot
 coord_radar <- function (theta = "x", start = 0, direction = 1){
@@ -482,39 +479,8 @@ coord_radar <- function (theta = "x", start = 0, direction = 1){
 
 # Plots
 of_plot <- reactive({
-  if(input$type == "Hazard category" &&
-     input$fill == "Pillar"){
-    ggplot(data = updated_data()) +
-
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Pillar,
-                   col = Pillar), 
-               stat = "identity",
-               position = "dodge",
-               alpha = 0.8) +
-      scale_fill_manual(values = pillar_cols) +
-      scale_colour_manual(values = pillar_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 15))
-  } else if(input$type == "Hazard category" &&
-            input$fill == "Impact"){
-    ggplot(data = updated_data()) +
-      geom_bar(aes(x = str_wrap(Hazard, 5), y = Score, fill = Impact,
-                   col = Impact), 
-               stat = "identity",
-               position = "dodge",
-               alpha = 0.8) +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
-      xlab("\nCategory") +
-      ylab("Hazard score\n") +
-      theme_light() +
-      theme(legend.position = "bottom",
-            text = element_text(size = 15))
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Pillar"){
+  # Overview plot
+  if(input$type == "Overview"){
     bar <- ggplot(data = updated_data()) +
       geom_bar(aes(x = Category, y = Score, fill = Pillar,
                    col = Pillar),
@@ -542,36 +508,95 @@ of_plot <- reactive({
       theme(legend.position = "none",
             text = element_text(size = 15))
     spider + bar 
-  } else if(input$type == "Hazard overview" &&
-            input$fill == "Impact"){
+    # Animal plant health
+  } else if(input$type == "Pillar" &&
+            input$pillar == "Animal/plant health"){
     bar <- ggplot(data = updated_data()) +
       geom_bar(aes(x = Category, y = Score, fill = Impact,
                    col = Impact),
                stat = "identity",
                position = "stack",
                alpha = 0.8) +
-      scale_fill_manual(values = impact_cols) +
-      scale_colour_manual(values = impact_cols) +
+      scale_fill_manual(values = sector_cols) +
+      scale_colour_manual(values = sector_cols) +
       xlab("\nCategory") +
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 15)) +
-      guides(fill = guide_legend(nrow = 2))
+            text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
            aes(x = Category, y = Score, col = Impact, group = Impact,
                fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
-      scale_colour_manual(values = impact_cols) +
-      scale_fill_manual(values = impact_cols) +
+      scale_colour_manual(values = sector_cols) +
+      scale_fill_manual(values = sector_cols) +
       xlab("") +
       ylab("Hazard score\n") +
       coord_radar() +
       theme_light() +
       theme(legend.position = "none",
             text = element_text(size = 15))
-    spider + bar
+    spider + bar 
+    # Environmental health
+  } else if(input$type == "Pillar" &&
+            input$pillar == "Environmental health"){
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Impact,
+                   col = Impact),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = env_cols) +
+      scale_colour_manual(values = env_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15))
+    spider <- ggplot(data = updated_data(),
+           aes(x = Category, y = Score, col = Impact, group = Impact,
+               fill = Impact)) +
+      geom_polygon(alpha = 0, linewidth = 1) +
+      geom_point(size = 5) +
+      scale_colour_manual(values = env_cols) +
+      scale_fill_manual(values = env_cols) +
+      xlab("") +
+      ylab("Hazard score\n") +
+      coord_radar() +
+      theme_light() +
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar 
+  } else if(input$type == "Pillar" &&
+            input$pillar == "Human health"){
+    bar <- ggplot(data = updated_data()) +
+      geom_bar(aes(x = Category, y = Score, fill = Impact,
+                   col = Impact),
+               stat = "identity",
+               position = "stack",
+               alpha = 0.8) +
+      scale_fill_manual(values = hum_cols) +
+      scale_colour_manual(values = hum_cols) +
+      xlab("\nCategory") +
+      ylab("Hazard score\n") +
+      theme_light() +
+      theme(legend.position = "bottom",
+            text = element_text(size = 15))
+    spider <- ggplot(data = updated_data(),
+           aes(x = Category, y = Score, col = Impact, group = Impact,
+               fill = Impact)) +
+      geom_polygon(alpha = 0, linewidth = 1) +
+      geom_point(size = 5) +
+      scale_colour_manual(values = hum_cols) +
+      scale_fill_manual(values = hum_cols) +
+      xlab("") +
+      ylab("Hazard score\n") +
+      coord_radar() +
+      theme_light() +
+      theme(legend.position = "none",
+            text = element_text(size = 15))
+    spider + bar 
   }
 })
 
