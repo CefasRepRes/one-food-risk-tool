@@ -31,7 +31,7 @@ library(patchwork)
 # thematic::thematic_rmd()
 ```
 
-Introduction
+Introduction {data-navmenu="Introduction"}
 ================================================================================
 
 Column
@@ -43,7 +43,7 @@ Column
 The One Food risk tool maintainer is Sarah Alewijnse (Cefas).
 Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
 
-How to
+How to {data-navmenu="Introduction"}
 ================================================================================
 
 Column
@@ -80,7 +80,7 @@ Upload the risk scores.
 Once you have uploaded the risk scores, you can visualise the results in **Risk visualiser** under **Risk tool visualiser**.
 You can also view the risk scores data in the data tab.
 
-Step 1 - Sector Selection {data-navmenu="Risk tool"}
+1 - Sector selection
 ================================================================================
 
 Column {data-width=650}
@@ -122,7 +122,7 @@ renderText({
 })
 ```
 
-Step 2 - Hazard selection {data-navmenu="Risk tool"}
+2 - Hazard selection
 ================================================================================
 
 Column {data-width=650 .tabset}
@@ -161,7 +161,7 @@ checkboxGroupInput(inputId = "template_haz_soc",
                    selected = c("Food price inflation"))
 ```
 
-Step 3 - Hazard scoring {data-navmenu="Risk tool"}
+3 - Hazard scoring
 ================================================================================
 
 #### Step 3 of 5: Hazard scoring
@@ -320,7 +320,7 @@ output$download_button <- renderUI({downloadButton(outputId = "template",
 uiOutput("download_button")
 ```
 
-Step 4 - Score upload {data-navmenu="Risk tool"}
+4 - Score upload
 ================================================================================
 
 #### Step 4 of 5: Score upload
@@ -366,7 +366,7 @@ selectInput(inputId = "method",
                         "Multiply"))
 ```
 
-Step 5 - Risk visualisation {data-navmenu="Risk tool"}
+5 - Risk visualisation
 ================================================================================
 
 Column {data-width=350 .sidebar}
