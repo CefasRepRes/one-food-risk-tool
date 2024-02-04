@@ -93,7 +93,7 @@ Please separate multiple sectors with a comma.
 
 ```{r}
 textInput(inputId = "input_sector",
-                   label = "Sector(s):",
+          label = "Sector(s):",
           placeholder = "Please entor your sector(s)")
 
 # Store upload in reactive value
@@ -186,15 +186,15 @@ template_data <- data.frame(Category = NA,
 
 # List of impacts/pillars ------------------------------------------------------
 template_pillars <- reactive({data.frame(Pillar = c(rep("Animal/plant health", length(template_creation$template_sector)),
-                                           rep("Environmental health", 3),
-                                           rep("Human health", 3)),
-                                Impact = c(template_creation$template_sector,
-                                           "Biodiversity",
-                                           "Pollution",
-                                           "Carbon footprint",
-                                           "Physical health",
-                                           "Food availability",
-                                           "Income"))
+                                                    rep("Environmental health", 3),
+                                                    rep("Human health", 3)),
+                                         Impact = c(template_creation$template_sector,
+                                                    "Biodiversity",
+                                                    "Pollution",
+                                                    "Carbon footprint",
+                                                    "Physical health",
+                                                    "Food availability",
+                                                    "Income"))
 })
 
 # Create template from inputs
@@ -205,7 +205,7 @@ template_data <- reactive({
                                                           length(input$template_haz_bio) *
                                                             length(template_pillars()$Pillar)),
                                            Hazard = sort(rep(input$template_haz_bio,
-                                                        length(template_pillars()$Pillar))),
+                                                             length(template_pillars()$Pillar))),
                                            Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_bio)),
                                            Impact = rep(template_pillars()$Impact,
@@ -224,17 +224,17 @@ template_data <- reactive({
   # Chemical
   ifelse(length(input$template_haz_chem) > 0,
          chemical_template <- data.frame(Category = rep("Chemical", 
-                                                          length(input$template_haz_chem) *
-                                                            length(template_pillars()$Pillar)),
-                                           Hazard = sort(rep(input$template_haz_chem,
-                                                        length(template_pillars()$Pillar))),
-                                           Pillar = rep(template_pillars()$Pillar,
-                                                        length(input$template_haz_chem)),
-                                           Impact = rep(template_pillars()$Impact,
-                                                        length(input$template_haz_chem)),
-                                           Severity = NA,
-                                           Probability = NA,
-                                           Longevity = NA),
+                                                        length(input$template_haz_chem) *
+                                                          length(template_pillars()$Pillar)),
+                                         Hazard = sort(rep(input$template_haz_chem,
+                                                           length(template_pillars()$Pillar))),
+                                         Pillar = rep(template_pillars()$Pillar,
+                                                      length(input$template_haz_chem)),
+                                         Impact = rep(template_pillars()$Impact,
+                                                      length(input$template_haz_chem)),
+                                         Severity = NA,
+                                         Probability = NA,
+                                         Longevity = NA),
          chemical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
                                          Pillar = NULL,
@@ -246,17 +246,17 @@ template_data <- reactive({
   # Physical
   ifelse(length(input$template_haz_phys) > 0,
          physical_template <- data.frame(Category = rep("Physical", 
-                                                          length(input$template_haz_phys) *
-                                                            length(template_pillars()$Pillar)),
-                                           Hazard = sort(rep(input$template_haz_phys,
-                                                        length(template_pillars()$Pillar))),
-                                           Pillar = rep(template_pillars()$Pillar,
-                                                        length(input$template_haz_phys)),
-                                           Impact = rep(template_pillars()$Impact,
-                                                        length(input$template_haz_phys)),
-                                           Severity = NA,
-                                           Probability = NA,
-                                           Longevity = NA),
+                                                        length(input$template_haz_phys) *
+                                                          length(template_pillars()$Pillar)),
+                                         Hazard = sort(rep(input$template_haz_phys,
+                                                           length(template_pillars()$Pillar))),
+                                         Pillar = rep(template_pillars()$Pillar,
+                                                      length(input$template_haz_phys)),
+                                         Impact = rep(template_pillars()$Impact,
+                                                      length(input$template_haz_phys)),
+                                         Severity = NA,
+                                         Probability = NA,
+                                         Longevity = NA),
          physical_template <- data.frame(Category = NULL,
                                          Hazard = NULL,
                                          Pillar = NULL,
@@ -268,17 +268,17 @@ template_data <- reactive({
   # Socio-economic
   ifelse(length(input$template_haz_soc) > 0,
          socio_economic_template <- data.frame(Category = rep("Socio-economic", 
-                                                          length(input$template_haz_soc) *
-                                                            length(template_pillars()$Pillar)),
-                                           Hazard = sort(rep(input$template_haz_soc,
-                                                        length(template_pillars()$Pillar))),
-                                           Pillar = rep(template_pillars()$Pillar,
-                                                        length(input$template_haz_soc)),
-                                           Impact = rep(template_pillars()$Impact,
-                                                        length(input$template_haz_soc)),
-                                           Severity = NA,
-                                           Probability = NA,
-                                           Longevity = NA),
+                                                              length(input$template_haz_soc) *
+                                                                length(template_pillars()$Pillar)),
+                                               Hazard = sort(rep(input$template_haz_soc,
+                                                                 length(template_pillars()$Pillar))),
+                                               Pillar = rep(template_pillars()$Pillar,
+                                                            length(input$template_haz_soc)),
+                                               Impact = rep(template_pillars()$Impact,
+                                                            length(input$template_haz_soc)),
+                                               Severity = NA,
+                                               Probability = NA,
+                                               Longevity = NA),
          socio_economic_template <- data.frame(Category = NULL,
                                                Hazard = NULL,
                                                Pillar = NULL,
@@ -287,9 +287,9 @@ template_data <- reactive({
                                                Probability = NULL,
                                                Longevity = NULL))
   template <- rbind(biological_template,
-        chemical_template,
-        physical_template,
-        socio_economic_template) %>% data.table()
+                    chemical_template,
+                    physical_template,
+                    socio_economic_template) %>% data.table()
   template[order(Pillar)]
 })
 
@@ -333,7 +333,8 @@ Column {data-width = 650 .tabset}
 # Upload button
 fileInput(inputId = "upload",
           label = "Upload hazard scores:",
-          accept = ".xlsx")
+          accept = ".xlsx",
+          multiple = TRUE)
 
 # Store upload in reactive value
 hazard_scores <- reactiveValues(user = NULL)
@@ -344,11 +345,22 @@ observe({
   req(input$upload)
   
   # Read file
-  file <- read.xlsx(xlsxFile = input$upload$datapath,
-                   sheet = 1)
+  file <- data.frame()
+  for(i in 1:length(input$upload[, 1])){
+    files <- read.xlsx(xlsxFile = input$upload[[i, "datapath"]],
+                       sheet = 1)
+    file <- rbind(file, files)
+  }
   
   # Convert to data table
   file <- data.table(file)
+  file <- file[, .(Severity = mean(Severity),
+                   Probability = mean(Probability),
+                   Longevity = mean(Longevity)),
+               by = c("Category",
+                      "Hazard",
+                      "Pillar",
+                      "Impact")]
   
   # Assign to reactive value
   hazard_scores$user <- file
@@ -448,10 +460,10 @@ names(pillar_cols) <- c("Animal/plant health",
 ## Impacts ====
 
 # Sector / animal/plant health
-  # Okabe-Ito palette
+# Okabe-Ito palette
 sector_cols <- c("#E69F00", "#56B4E9", "#009E73", 
-                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-                       
+                          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                          
 # Environmental health
 env_cols <- c("#44AA99",
                        "#332288",
@@ -465,17 +477,17 @@ names(env_cols) <- c("Biodiversity",
 hum_cols <- c("#f28d9d",
                        "#AA4499",
                        "#661100")
-
+                       
 # Code for radar plot
 coord_radar <- function (theta = "x", start = 0, direction = 1){
-        theta <- match.arg(theta, c("x", "y"))
-        r <- if (theta == "x") 
-            "y"
-        else "x"
-        ggproto("CordRadar", CoordPolar, theta = theta, r = r, start = start, 
-            direction = sign(direction),
-            is_linear = function(coord) TRUE)
-        }
+  theta <- match.arg(theta, c("x", "y"))
+  r <- if (theta == "x") 
+    "y"
+  else "x"
+  ggproto("CordRadar", CoordPolar, theta = theta, r = r, start = start, 
+          direction = sign(direction),
+          is_linear = function(coord) TRUE)
+}
 
 # Plots
 of_plot <- reactive({
@@ -495,10 +507,11 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-           aes(x = Category, y = Score, col = Pillar, group = Pillar,
-               fill = Pillar)) +
+                     aes(x = Category, y = Score, col = Pillar, group = Pillar,
+                         fill = Pillar)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
+      scale_y_continuous(limits = c(0, NA)) +
       scale_colour_manual(values = pillar_cols) +
       scale_fill_manual(values = pillar_cols) +
       xlab("") +
@@ -525,10 +538,11 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-           aes(x = Category, y = Score, col = Impact, group = Impact,
-               fill = Impact)) +
+                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                         fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
+      scale_y_continuous(limits = c(0, NA)) +
       scale_colour_manual(values = sector_cols) +
       scale_fill_manual(values = sector_cols) +
       xlab("") +
@@ -555,10 +569,11 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-           aes(x = Category, y = Score, col = Impact, group = Impact,
-               fill = Impact)) +
+                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                         fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
+      scale_y_continuous(limits = c(0, NA)) +
       scale_colour_manual(values = env_cols) +
       scale_fill_manual(values = env_cols) +
       xlab("") +
@@ -584,10 +599,11 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-           aes(x = Category, y = Score, col = Impact, group = Impact,
-               fill = Impact)) +
+                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                         fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
+      scale_y_continuous(limits = c(0, NA)) +
       scale_colour_manual(values = hum_cols) +
       scale_fill_manual(values = hum_cols) +
       xlab("") +
