@@ -132,31 +132,31 @@ Column {data-width=650 .tabset}
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_bio",
-                   label = "Biological hazards",
-                   choices = c("Pathogens - Fungal"),
-                   selected = c("Pathogens - Fungal"))
+                   label = "Hazard 1",
+                   choices = c("Fungal pathogens"),
+                   selected = c("Fungal pathogens"))
 ```
 
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_chem",
-                   label = "Chemical hazards",
-                   choices = c("Antimicrobials"),
-                   selected = c("Antimicrobials"))
+                   label = "Hazard 2",
+                   choices = c("Pesticides"),
+                   selected = c("Pesticides"))
 ```
 
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_phys",
-                   label = "Physical hazards",
-                   choices = c("Water scarcity"),
-                   selected = c("Water scarcity"))
+                   label = "Hazard 3",
+                   choices = c("Extreme heat"),
+                   selected = c("Extreme heat"))
 ```
 
 
 ```{r}
 checkboxGroupInput(inputId = "template_haz_soc",
-                   label = "Socio-economic hazards",
+                   label = "Hazard 4",
                    choices = c("Food price inflation"),
                    selected = c("Food price inflation"))
 ```
@@ -176,8 +176,7 @@ Column {data-width=650 .tabset}
 
 ```{r}
 # Base template ----------------------------------------------------------------
-template_data <- data.frame(Category = NA,
-                            Hazard = NA,
+template_data <- data.frame(Hazard = NA,
                             Impact = NA,
                             Sector = NA,
                             Severity = NA,
@@ -189,7 +188,7 @@ template_pillars <- reactive({data.frame(Pillar = c(rep("Animal/plant health", l
                                                     rep("Environmental health", 3),
                                                     rep("Human health", 3)),
                                          Impact = c(template_creation$template_sector,
-                                                    "Biodiversity",
+                                                    "Species richness",
                                                     "Pollution",
                                                     "Carbon footprint",
                                                     "Physical health",
@@ -201,10 +200,7 @@ template_pillars <- reactive({data.frame(Pillar = c(rep("Animal/plant health", l
 template_data <- reactive({
   # Biological
   ifelse(length(input$template_haz_bio) > 0,
-         biological_template <- data.frame(Category = rep("Biological", 
-                                                          length(input$template_haz_bio) *
-                                                            length(template_pillars()$Pillar)),
-                                           Hazard = sort(rep(input$template_haz_bio,
+         biological_template <- data.frame(Hazard = sort(rep(input$template_haz_bio,
                                                              length(template_pillars()$Pillar))),
                                            Pillar = rep(template_pillars()$Pillar,
                                                         length(input$template_haz_bio)),
@@ -213,8 +209,7 @@ template_data <- reactive({
                                            Severity = NA,
                                            Probability = NA,
                                            Longevity = NA),
-         biological_template <- data.frame(Category = NULL,
-                                           Hazard = NULL,
+         biological_template <- data.frame(Hazard = NULL,
                                            Pillar = NULL,
                                            Impact = NULL,
                                            Severity = NULL,
@@ -223,10 +218,7 @@ template_data <- reactive({
   
   # Chemical
   ifelse(length(input$template_haz_chem) > 0,
-         chemical_template <- data.frame(Category = rep("Chemical", 
-                                                        length(input$template_haz_chem) *
-                                                          length(template_pillars()$Pillar)),
-                                         Hazard = sort(rep(input$template_haz_chem,
+         chemical_template <- data.frame(Hazard = sort(rep(input$template_haz_chem,
                                                            length(template_pillars()$Pillar))),
                                          Pillar = rep(template_pillars()$Pillar,
                                                       length(input$template_haz_chem)),
@@ -235,8 +227,7 @@ template_data <- reactive({
                                          Severity = NA,
                                          Probability = NA,
                                          Longevity = NA),
-         chemical_template <- data.frame(Category = NULL,
-                                         Hazard = NULL,
+         chemical_template <- data.frame(Hazard = NULL,
                                          Pillar = NULL,
                                          Impact = NULL,
                                          Severity = NULL,
@@ -245,10 +236,7 @@ template_data <- reactive({
   
   # Physical
   ifelse(length(input$template_haz_phys) > 0,
-         physical_template <- data.frame(Category = rep("Physical", 
-                                                        length(input$template_haz_phys) *
-                                                          length(template_pillars()$Pillar)),
-                                         Hazard = sort(rep(input$template_haz_phys,
+         physical_template <- data.frame(Hazard = sort(rep(input$template_haz_phys,
                                                            length(template_pillars()$Pillar))),
                                          Pillar = rep(template_pillars()$Pillar,
                                                       length(input$template_haz_phys)),
@@ -257,8 +245,7 @@ template_data <- reactive({
                                          Severity = NA,
                                          Probability = NA,
                                          Longevity = NA),
-         physical_template <- data.frame(Category = NULL,
-                                         Hazard = NULL,
+         physical_template <- data.frame(Hazard = NULL,
                                          Pillar = NULL,
                                          Impact = NULL,
                                          Severity = NULL,
@@ -267,10 +254,7 @@ template_data <- reactive({
   
   # Socio-economic
   ifelse(length(input$template_haz_soc) > 0,
-         socio_economic_template <- data.frame(Category = rep("Socio-economic", 
-                                                              length(input$template_haz_soc) *
-                                                                length(template_pillars()$Pillar)),
-                                               Hazard = sort(rep(input$template_haz_soc,
+         socio_economic_template <- data.frame(Hazard = sort(rep(input$template_haz_soc,
                                                                  length(template_pillars()$Pillar))),
                                                Pillar = rep(template_pillars()$Pillar,
                                                             length(input$template_haz_soc)),
@@ -279,8 +263,7 @@ template_data <- reactive({
                                                Severity = NA,
                                                Probability = NA,
                                                Longevity = NA),
-         socio_economic_template <- data.frame(Category = NULL,
-                                               Hazard = NULL,
+         socio_economic_template <- data.frame(Hazard = NULL,
                                                Pillar = NULL,
                                                Impact = NULL,
                                                Severity = NULL,
@@ -357,8 +340,7 @@ observe({
   file <- file[, .(Severity = mean(Severity),
                    Probability = mean(Probability),
                    Longevity = mean(Longevity)),
-               by = c("Category",
-                      "Hazard",
+               by = c("Hazard",
                       "Pillar",
                       "Impact")]
   
@@ -423,30 +405,19 @@ updated_data <- reactive({
     hazard_scores$user$Score <- hazard_scores$user$Severity * hazard_scores$user$Probability * hazard_scores$user$Longevity
   }
   if(input$type == "Overview"){
-    hazard_scores$user[, .(Score = sum(Score)), by = c("Category", "Pillar")]
+    hazard_scores$user[, .(Score = sum(Score)), by = c("Hazard", "Pillar")]
   } else if(input$type == "Pillar"){
     if(input$pillar == "Animal/plant health"){
-      hazard_scores$user[Pillar == "Animal/plant health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
+      hazard_scores$user[Pillar == "Animal/plant health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
     } else if(input$pillar == "Environmental health"){
-      hazard_scores$user[Pillar == "Environmental health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
+      hazard_scores$user[Pillar == "Environmental health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
     } else if(input$pillar == "Human health"){
-      hazard_scores$user[Pillar == "Human health"][, .(Score = sum(Score)), by = c("Category", "Impact")]
+      hazard_scores$user[Pillar == "Human health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
     }
   }
 })
 
 # Colour palettes --------------------------------------------------------------
-
-## Hazard category =====
-category_cols <- c("#E69F00",
-                            "#56B4E9",
-                            "#009E73",
-                            "#D55E00")
-                            
-names(category_cols) <- c("Biological",
-                          "Chemical",
-                          "Physical",
-                          "Socio-economic")
 
 ## Pillars ====
 pillar_cols <- c("#6699CC",
@@ -469,7 +440,7 @@ env_cols <- c("#44AA99",
                        "#332288",
                        "#117733")
                        
-names(env_cols) <- c("Biodiversity",
+names(env_cols) <- c("Species richness",
                      "Pollution",
                      "Carbon footprint")
 
@@ -494,7 +465,7 @@ of_plot <- reactive({
   # Overview plot
   if(input$type == "Overview"){
     bar <- ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Pillar,
+      geom_bar(aes(x = Hazard, y = Score, fill = Pillar,
                    col = Pillar),
                stat = "identity",
                position = "stack",
@@ -507,7 +478,7 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-                     aes(x = Category, y = Score, col = Pillar, group = Pillar,
+                     aes(x = Hazard, y = Score, col = Pillar, group = Pillar,
                          fill = Pillar)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
@@ -525,7 +496,7 @@ of_plot <- reactive({
   } else if(input$type == "Pillar" &&
             input$pillar == "Animal/plant health"){
     bar <- ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Impact,
+      geom_bar(aes(x = Hazard, y = Score, fill = Impact,
                    col = Impact),
                stat = "identity",
                position = "stack",
@@ -538,7 +509,7 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                     aes(x = Hazard, y = Score, col = Impact, group = Impact,
                          fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
@@ -556,7 +527,7 @@ of_plot <- reactive({
   } else if(input$type == "Pillar" &&
             input$pillar == "Environmental health"){
     bar <- ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Impact,
+      geom_bar(aes(x = Hazard, y = Score, fill = Impact,
                    col = Impact),
                stat = "identity",
                position = "stack",
@@ -569,7 +540,7 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                     aes(x = Hazard, y = Score, col = Impact, group = Impact,
                          fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
@@ -586,7 +557,7 @@ of_plot <- reactive({
   } else if(input$type == "Pillar" &&
             input$pillar == "Human health"){
     bar <- ggplot(data = updated_data()) +
-      geom_bar(aes(x = Category, y = Score, fill = Impact,
+      geom_bar(aes(x = Hazard, y = Score, fill = Impact,
                    col = Impact),
                stat = "identity",
                position = "stack",
@@ -599,7 +570,7 @@ of_plot <- reactive({
       theme(legend.position = "bottom",
             text = element_text(size = 15))
     spider <- ggplot(data = updated_data(),
-                     aes(x = Category, y = Score, col = Impact, group = Impact,
+                     aes(x = Hazard, y = Score, col = Impact, group = Impact,
                          fill = Impact)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
