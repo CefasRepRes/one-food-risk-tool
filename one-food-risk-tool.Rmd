@@ -396,6 +396,14 @@ output$impact <- renderUI({
                             "Species richness",
                             "Pollution",
                             "Carbon footprint"))
+  else if(input$type == "Pillar" &&
+     input$pillar == "Human health")
+    selectInput(inputId = "impact",
+                label = "Impact:",
+                choices = c("Overview",
+                            "Food availability",
+                            "Income",
+                            "Physical health"))
 })
 
 # Render UIs
@@ -409,6 +417,13 @@ Column {data-width=650 .tabset}
 ### Plot
 
 ```{r}
+calc.pillar <- function(pillar){
+  hazard_scores$user[Pillar == pillar][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+}
+calc.impact <- function(focus_impact){
+  hazard_scores$user[Impact == focus_impact][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+}
+
 # Edit synthetic data
 updated_data <- reactive({
   if(input$method == "Add"){
@@ -417,29 +432,40 @@ updated_data <- reactive({
   if(input$method == "Multiply"){
     hazard_scores$user$Score <- hazard_scores$user$Severity * hazard_scores$user$Probability * hazard_scores$user$Longevity
   }
+  ## Overview ====
   if(input$type == "Overview"){
     hazard_scores$user[, .(Score = sum(Score)), by = c("Hazard", "Pillar")]
+    ## Pillar overviews ====
   } else if(input$type == "Pillar"){
     if(input$pillar == "Animal/plant health"){
-      hazard_scores$user[Pillar == "Animal/plant health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
-    } else if(input$pillar == "Animal/plant health" &&
-              input$impact == input$input_sector[1]){
-      hazard_scores$user[Impact == input$input_sector[1]][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+      calc.pillar(pillar = "Animal/plant health")
     } else if(input$pillar == "Environmental health" &&
               input$impact == "Overview"){
-      hazard_scores$user[Pillar == "Environmental health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
-    } else if(input$pillar == "Human health"){
-      hazard_scores$user[Pillar == "Human health"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+      calc.pillar(pillar = "Environmental health")
+    } else if(input$pillar == "Human health" &&
+              input$impact == "Overview"){
+      calc.pillar(pillar = "Human health")
+      ## Deep dive env ====
     } else if(input$pillar == "Environmental health" &&
               input$impact == "Species richness"){
-      hazard_scores$user[Impact == "Species richness"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+      calc.impact(focus_impact = "Species richness")
     } else if(input$pillar == "Environmental health" &&
               input$impact == "Pollution"){
-      hazard_scores$user[Impact == "Pollution"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
+      calc.impact(focus_impact = "Pollution")
     } else if(input$pillar == "Environmental health" &&
               input$impact == "Carbon footprint"){
-      hazard_scores$user[Impact == "Carbon footprint"][, .(Score = sum(Score)), by = c("Hazard", "Impact")]
-    }
+      calc.impact(focus_impact = "Carbon footprint")
+      ## Deep dive hum ====
+    } else if(input$pillar == "Human health" &&
+              input$impact == "Food availability"){
+      calc.impact(focus_impact = "Food availability")
+    } else if(input$pillar == "Human health" &&
+              input$impact == "Income"){
+      calc.impact(focus_impact = "Income")
+    } else if(input$pillar == "Human health" &&
+              input$impact == "Physical health"){
+      calc.impact(focus_impact = "Physical health")
+    } 
   }
 })
 
@@ -474,6 +500,10 @@ names(env_cols) <- c("Species richness",
 hum_cols <- c("#f28d9d",
                        "#AA4499",
                        "#661100")
+                       
+names(hum_cols) <- c("Food availability",
+                     "Income",
+                     "Physical health")
                        
 # Code for radar plot
 coord_radar <- function(theta = "x", start = 0, direction = 1){
@@ -567,7 +597,8 @@ of_plot <- reactive({
                palette = env_cols)
     # Human health
   } else if(input$type == "Pillar" &&
-            input$pillar == "Human health"){
+            input$pillar == "Human health" &&
+            input$impact == "Overview"){
     of.overview(colour = updated_data()$Impact,
                palette = hum_cols)
   } else if(input$pillar == "Environmental health" &&
@@ -582,7 +613,19 @@ of_plot <- reactive({
               input$impact == "Carbon footprint"){
     of.impacts(colour = updated_data()$Impact,
                palette = env_cols)
-  } 
+  } else if(input$pillar == "Human health" &&
+              input$impact == "Food availability"){
+    of.impacts(colour = updated_data()$Impact,
+               palette = hum_cols)
+  } else if(input$pillar == "Human health" &&
+              input$impact == "Income"){
+    of.impacts(colour = updated_data()$Impact,
+               palette = hum_cols)
+  } else if(input$pillar == "Human health" &&
+              input$impact == "Physical health"){
+    of.impacts(colour = updated_data()$Impact,
+               palette = hum_cols)
+  }
 })
 
 # Plot
