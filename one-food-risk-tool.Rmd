@@ -378,7 +378,8 @@ selectInput(inputId = "type",
 
 # Get sectors
 sectors <- reactive({
-  unique(hazard_scores$user[Pillar == "Animal/plant health"]$Impact)
+  unique(hazard_scores$user[Pillar == "Animal/plant health"]$Impact) %>%
+    sort()
 })
 
 # Options for pillar
@@ -482,6 +483,12 @@ updated_data <- reactive({
     } else if(input$pillar == "Animal/plant health" &&
               input$impact == sectors()[1]){
       calc.impact(focus_impact = sectors()[1])
+    } else if(input$pillar == "Animal/plant health" &&
+              input$impact == sectors()[2]){
+      calc.impact(focus_impact = sectors()[2])
+    } else if(input$pillar == "Animal/plant health" &&
+              input$impact == sectors()[3]){
+      calc.impact(focus_impact = sectors()[3])
     }
   }
 })
@@ -646,7 +653,15 @@ of_plot <- reactive({
   } else if(input$pillar == "Animal/plant health" &&
             input$impact == sectors()[1]){
     of.impacts(colour = updated_data()$Impact,
-               palette = sector_cols)
+               palette = sector_cols[1])
+  } else if(input$pillar == "Animal/plant health" &&
+            input$impact == sectors()[2]){
+    of.impacts(colour = updated_data()$Impact,
+               palette = sector_cols[2])
+  } else if(input$pillar == "Animal/plant health" &&
+            input$impact == sectors()[3]){
+    of.impacts(colour = updated_data()$Impact,
+               palette = sector_cols[3])
   }
 })
 
