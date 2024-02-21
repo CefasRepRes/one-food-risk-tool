@@ -36,12 +36,11 @@ Introduction {data-navmenu="Introduction"}
 
 Column
 --------------------------------------------------------------------------------
-#### One Food project
 
-#### One Food risk tool
+#### One Food Risk Tool Prototype
 
-The One Food risk tool maintainer is Sarah Alewijnse (Cefas).
-Please email sarah.alewijnse@cefas.gov.uk for debugging assistance.
+The One Food Risk Tool Prototype maintainer is Sarah Alewijnse (Cefas).
+Please email sarah.alewijnse@cefas.gov.uk for debugging assistance and user feedback.
 
 How to {data-navmenu="Introduction"}
 ================================================================================
@@ -56,29 +55,49 @@ First is the **Risk score template**, which allows users to create and download 
 template for risk scores, based on the sectors, hazards, and impacts of their choice.
 Second is the **Risk tool visualiser** which allows users to visualise those risk scores.
 
-##### 1. Download the risk score template
+##### 1. Input the sector(s) you are analysing
 
-Navigate to **Hazard and sector selection** under **Risk scores template**.
-Select your required sector(s) and hazard(s) from the tick boxes.
-Note that hazards are split into their categories: Biological, Chemical, Physical and Socio-Economic.
-You can select as many hazards and sectors as you require.
+Navigate to **Sector selection**.
+Input your desired sector(s) into the text box.
+If you wish to explore multiple sectors, please separate each with a comma.
 
-Next, navigate to **Data template download** under **Risk scores template**. 
-Here you can view your data template and download it as a .csv file.
+##### 2. Select the hazards you are focussing on
+Navigate to **Hazard selection**.
+Check each hazard you wish to score.
+Note: for the February One Food workshop, the hazards are predetermined as:
 
-##### 2. Fill in the risk scores
+* Fungal pathogens
+* Pesticides
+* Extreme head
+* Food price inflation
 
-Using your preferred spreadsheet editing software, enter the risk scores for each hazard and sector, using the template you created.
+##### 3. Score the hazards
 
-##### 3. Upload the risk scores data
+Navigate to **Hazard scoring**.
+Here you can preview the hazard scoring table.
+When happy, download the table and complete the scoring in Excel.
+Where there are multiple users or groups, each user/group can score using their own Excel file.
+Note: for the February One Food workshop, scoring will be done on paper and added to Excel files for upload.
 
-Navigate to **Data upload** under **Risk tool visualiser**. 
-Upload the risk scores.
+##### 4. Upload the risk scores
 
-##### 4. Visualise the risk scores
+Navigate to **Data upload**.
+Upload the hazard score Excel files.
+Where multiple score files are uploaded, these will be averaged.
 
-Once you have uploaded the risk scores, you can visualise the results in **Risk visualiser** under **Risk tool visualiser**.
-You can also view the risk scores data in the data tab.
+Next, choose whether you would like your score generation to be additive or multiplicative.
+
+For additive scoring:
+Final score = Severity + Probability + Longevity
+
+For multiplicative scoring:
+Final score = Severity $\times$ Probability $\times$ Longevity
+
+##### 5. Visualise the risk scores
+
+Navigate to **Risk visualisation**.
+Here you can view an overview consisting of summarised scores across all impacts, grouped by pillar.
+You can then deep dive by pillar, first viewing an overview, then highlighting specific impacts.
 
 1 - Sector selection
 ================================================================================
@@ -94,7 +113,7 @@ Please separate multiple sectors with a comma.
 ```{r}
 textInput(inputId = "input_sector",
           label = "Sector(s):",
-          placeholder = "Please entor your sector(s)")
+          placeholder = "Please enter your sector(s)")
 
 # Store upload in reactive value
 template_creation <- reactiveValues(user = NULL)
@@ -554,13 +573,14 @@ of.overview <- function(colour, palette){
       ylab("Hazard score\n") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 15))
+            text = element_text(size = 15),
+            legend.title = element_blank())
     spider <- ggplot(data = updated_data(),
                      aes(x = Hazard, y = Score, col = colour, group = colour,
                          fill = colour)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
-      scale_y_continuous(limits = c(0, NA)) +
+      scale_y_continuous() +
       scale_colour_manual(values = palette) +
       scale_fill_manual(values = palette) +
       xlab("") +
@@ -590,7 +610,7 @@ of.impacts <- function(colour, palette){
                          fill = colour)) +
       geom_polygon(alpha = 0, linewidth = 1) +
       geom_point(size = 5) +
-      scale_y_continuous(limits = c(0, NA)) +
+      scale_y_continuous() +
       scale_colour_manual(values = palette) +
       scale_fill_manual(values = palette) +
       xlab("") +
