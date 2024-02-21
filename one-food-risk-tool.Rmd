@@ -376,6 +376,11 @@ selectInput(inputId = "type",
 
 # Second input selectors -------------------------------------------------------
 
+# Get sectors
+sectors <- reactive({
+  unique(hazard_scores$user[Pillar == "Animal/plant health"]$Impact)
+})
+
 # Options for pillar
 output$pillar <- renderUI({
   if(input$type == "Pillar")
@@ -404,6 +409,13 @@ output$impact <- renderUI({
                             "Food availability",
                             "Income",
                             "Physical health"))
+  else if(input$type == "Pillar" &&
+          input$pillar == "Animal/plant health"){
+    selectInput(inputId = "impact",
+                label = "Impact:",
+                choices = c("Overview",
+                            sectors()))
+  }
 })
 
 # Render UIs
@@ -437,7 +449,8 @@ updated_data <- reactive({
     hazard_scores$user[, .(Score = sum(Score)), by = c("Hazard", "Pillar")]
     ## Pillar overviews ====
   } else if(input$type == "Pillar"){
-    if(input$pillar == "Animal/plant health"){
+    if(input$pillar == "Animal/plant health" &&
+       input$impact == "Overview"){
       calc.pillar(pillar = "Animal/plant health")
     } else if(input$pillar == "Environmental health" &&
               input$impact == "Overview"){
@@ -465,7 +478,11 @@ updated_data <- reactive({
     } else if(input$pillar == "Human health" &&
               input$impact == "Physical health"){
       calc.impact(focus_impact = "Physical health")
-    } 
+      ## Deep dive animal/plant
+    } else if(input$pillar == "Animal/plant health" &&
+              input$impact == sectors()[1]){
+      calc.impact(focus_impact = sectors()[1])
+    }
   }
 })
 
@@ -586,7 +603,8 @@ of_plot <- reactive({
                 palette = pillar_cols)
     # Animal plant health
   } else if(input$type == "Pillar" &&
-            input$pillar == "Animal/plant health"){
+            input$pillar == "Animal/plant health" &&
+            input$impact == "Overview"){
    of.overview(colour = updated_data()$Impact,
                palette = sector_cols)
     # Environmental health
@@ -625,6 +643,10 @@ of_plot <- reactive({
               input$impact == "Physical health"){
     of.impacts(colour = updated_data()$Impact,
                palette = hum_cols)
+  } else if(input$pillar == "Animal/plant health" &&
+            input$impact == sectors()[1]){
+    of.impacts(colour = updated_data()$Impact,
+               palette = sector_cols)
   }
 })
 
