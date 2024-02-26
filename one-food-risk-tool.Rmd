@@ -13,7 +13,7 @@ output:
       code_font:
         google: JetBrains Mono
     orientation: columns
-    vertical_layout: fill
+    vertical_layout: scroll
 ---
 
 ```{r setup, include=FALSE}
@@ -31,78 +31,10 @@ library(patchwork)
 # thematic::thematic_rmd()
 ```
 
-Introduction {data-navmenu="Introduction"}
-================================================================================
-
-Column
---------------------------------------------------------------------------------
-
-#### One Food Risk Tool Prototype
-
-The One Food Risk Tool Prototype maintainer is Sarah Alewijnse (Cefas).
-Please email sarah.alewijnse@cefas.gov.uk for debugging assistance and user feedback.
-
-How to {data-navmenu="Introduction"}
-================================================================================
-
-Column
---------------------------------------------------------------------------------
-
-#### How to use the One Food risk tool
-
-The One Food risk tool has two key components. 
-First is the **Risk score template**, which allows users to create and download a custom
-template for risk scores, based on the sectors, hazards, and impacts of their choice.
-Second is the **Risk tool visualiser** which allows users to visualise those risk scores.
-
-##### 1. Input the sector(s) you are analysing
-
-Navigate to **Sector selection**.
-Input your desired sector(s) into the text box.
-If you wish to explore multiple sectors, please separate each with a comma.
-
-##### 2. Select the hazards you are focussing on
-Navigate to **Hazard selection**.
-Check each hazard you wish to score.
-Note: for the February One Food workshop, the hazards are predetermined as:
-
-* Fungal pathogens
-* Pesticides
-* Extreme head
-* Food price inflation
-
-##### 3. Score the hazards
-
-Navigate to **Hazard scoring**.
-Here you can preview the hazard scoring table.
-When happy, download the table and complete the scoring in Excel.
-Where there are multiple users or groups, each user/group can score using their own Excel file.
-Note: for the February One Food workshop, scoring will be done on paper and added to Excel files for upload.
-
-##### 4. Upload the risk scores
-
-Navigate to **Data upload**.
-Upload the hazard score Excel files.
-Where multiple score files are uploaded, these will be averaged.
-
-Next, choose whether you would like your score generation to be additive or multiplicative.
-
-For additive scoring:
-Final score = Severity + Probability + Longevity
-
-For multiplicative scoring:
-Final score = Severity $\times$ Probability $\times$ Longevity
-
-##### 5. Visualise the risk scores
-
-Navigate to **Risk visualisation**.
-Here you can view an overview consisting of summarised scores across all impacts, grouped by pillar.
-You can then deep dive by pillar, first viewing an overview, then highlighting specific impacts.
-
 1 - Sector selection
 ================================================================================
 
-Column {data-width=650}
+Column {data-width=300}
 --------------------------------------------------------------------------------
 
 #### Step 1 of 5: Sector selection
@@ -382,7 +314,7 @@ selectInput(inputId = "method",
 5 - Risk visualisation
 ================================================================================
 
-Column {data-width=350 .sidebar}
+Column {data-width=225 .sidebar}
 -----------------------------------------------------------------------
 
 ```{r}
@@ -443,10 +375,8 @@ uiOutput("pillar")
 uiOutput("impact")
 ```
 
-Column {data-width=650 .tabset}
+Column {data-width=650}
 -----------------------------------------------------------------------
-
-### Plot
 
 ```{r}
 calc.pillar <- function(pillar){
@@ -569,12 +499,15 @@ of.overview <- function(colour, palette){
                alpha = 0.8) +
       scale_fill_manual(values = palette) +
       scale_colour_manual(values = palette) +
-      xlab("\nHazard") +
-      ylab("Hazard score\n") +
+      xlab("Hazard") +
+      ylab("Hazard score") +
       theme_light() +
       theme(legend.position = "bottom",
-            text = element_text(size = 15),
-            legend.title = element_blank())
+            text = element_text(size = 25,
+                                family = "Arial"),
+            axis.title = element_blank(),
+            legend.title = element_blank(),
+            panel.backgroun = element_blank())
     spider <- ggplot(data = updated_data(),
                      aes(x = Hazard, y = Score, col = colour, group = colour,
                          fill = colour)) +
@@ -584,12 +517,13 @@ of.overview <- function(colour, palette){
       scale_colour_manual(values = palette) +
       scale_fill_manual(values = palette) +
       xlab("") +
-      ylab("Hazard score\n") +
+      ylab("Hazard score") +
       coord_radar() +
       theme_light() +
       theme(legend.position = "none",
-            text = element_text(size = 15))
-    return(spider + bar)
+            text = element_text(size = 25,
+                                family = "Lucida Sans"))
+    return(bar)
 }
 
 of.impacts <- function(colour, palette){
@@ -600,11 +534,13 @@ of.impacts <- function(colour, palette){
                alpha = 0.8) +
       scale_fill_manual(values = palette) +
       scale_colour_manual(values = palette) +
-      xlab("\nHazard") +
-      ylab("Hazard score\n") +
+      xlab("Hazard") +
+      ylab("Hazard score") +
       theme_light() +
       theme(legend.position = "none",
-            text = element_text(size = 15))
+            text = element_text(size = 25,
+                                family = "Arial"),
+            axis.title = element_blank())
     spider <- ggplot(data = updated_data(),
                      aes(x = Hazard, y = Score, col = colour, group = colour,
                          fill = colour)) +
@@ -614,12 +550,13 @@ of.impacts <- function(colour, palette){
       scale_colour_manual(values = palette) +
       scale_fill_manual(values = palette) +
       xlab("") +
-      ylab("Hazard score\n") +
+      ylab("Hazard score") +
       coord_radar() +
       theme_light() +
       theme(legend.position = "none",
-            text = element_text(size = 15))
-    spider + bar
+            text = element_text(size = 25,
+                                family = "Lucida Sans"))
+    bar
 }
 
 # Plots
@@ -686,16 +623,9 @@ of_plot <- reactive({
 })
 
 # Plot
+par(mfrow = c(1, 1))
 renderPlot({
   of_plot()
 })
 ```
 
-
-### Data
-
-```{r}
-renderDataTable({
-  updated_data()
-})
-```
