@@ -10,3 +10,5 @@ Instructions for using the tool are contained within the tool itself, under the 
 This prototype is an archive version.
 The developer for this tool prototype is [Sarah Alewijnse](sarah.alewijnse@cefas.gov.uk).
 Further tool development is being undertaken by the [AI/XR Group at CSIR](https://www.csir.co.za/artificial-intelligence-and-extended-reality).
+
+![Tool visualisation demonstration](https://github.com/CefasRepRes/one-food-risk-tool/blob/main/images/prototype-demo.png)
